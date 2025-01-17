@@ -58,10 +58,22 @@ public static class EditorUtils
             assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
             asset = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
             tmp = asset.GetComponent<T>();
-            if (tmp != null)
-            {
-                assetList.Add(tmp);
-            }
+            if (tmp != null) assetList.Add(tmp);
+        }
+        return assetList;
+    }
+    // Finds all prefabs in the specified path
+    public static List<GameObject> GetAssets(string path)
+    {
+        string assetPath;
+        GameObject asset;
+        List<GameObject> assetList = new List<GameObject>();
+        string[] guids = AssetDatabase.FindAssets("t:Prefab", new string[] { path });
+        for (int i = 0; i < guids.Length; i++)
+        {
+            assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+            asset = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+            if (asset != null) assetList.Add(asset);
         }
         return assetList;
     }

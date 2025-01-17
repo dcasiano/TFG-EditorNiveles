@@ -7,8 +7,15 @@ public class PaletteWindow : EditorWindow
 {
     public static PaletteWindow instance;
     private string path = "Assets/Prefabs/LevelObjects";
-    private List<PaletteItem> items;
-    private Dictionary<PaletteItem, Texture2D> previews;
+
+    // TODO: agrupar los items en categorias. En el editor se crearan tantas 
+    // carpetas como categorias de items haya y se guardara cada item en su 
+    // carpeta correspondiente. Maybe agruparlos aqui con un diccionario de listas??
+
+    //private List<PaletteItem> items;
+    private List<GameObject> items;
+    //private Dictionary<PaletteItem, Texture2D> previews;
+    private Dictionary<string, Texture2D> previews;
     private Vector2 scrollPosition;
     private const float buttonWidth = 80;
     private const float buttonHeight = 90;
@@ -21,8 +28,10 @@ public class PaletteWindow : EditorWindow
     }
     private void OnEnable()
     {
-        items = EditorUtils.GetAssetsWithScript<PaletteItem>(path);
-        previews = new Dictionary<PaletteItem, Texture2D>();
+        //items = EditorUtils.GetAssetsWithScript<PaletteItem>(path);
+        //previews = new Dictionary<PaletteItem, Texture2D>();
+        items = EditorUtils.GetAssets(path);
+        previews = new Dictionary<string, Texture2D>();
     }
     private void Update()
     {
@@ -44,8 +53,8 @@ public class PaletteWindow : EditorWindow
             for (int i = 0; i < totalItems; i++)
             {
                 GUIContent guiContent = new GUIContent();
-                guiContent.text = items[i].itemName;
-                guiContent.image = previews[items[i]];
+                guiContent.text = items[i].name;
+                guiContent.image = previews[items[i].name];
                 guiContents.Add(guiContent);
             }
         }
@@ -64,8 +73,10 @@ public class PaletteWindow : EditorWindow
     {
         if (index != -1)
         {
-            PaletteItem selectedItem = items[index];
-            Debug.Log("Selected Item is: " + selectedItem.itemName);
+            //PaletteItem selectedItem = items[index];
+            //Debug.Log("Selected Item is: " + selectedItem.itemName);
+            GameObject selectedItem = items[index];
+            Debug.Log("Selected Item is: " + selectedItem.name);
         }
     }
     private void DrawScroll()
@@ -80,14 +91,25 @@ public class PaletteWindow : EditorWindow
     }
     private void GeneratePreviews()
     {
-        foreach (PaletteItem item in items)
+        /*foreach (PaletteItem item in items)
         {
             if (!previews.ContainsKey(item))
             {
-                Texture2D preview = AssetPreview.GetAssetPreview(item.
-               gameObject); if (preview != null)
+                Texture2D preview = AssetPreview.GetAssetPreview(item.gameObject); 
+                if (preview != null)
                 {
                     previews.Add(item, preview);
+                }
+            }
+        }*/
+        foreach (GameObject item in items)
+        {
+            if (!previews.ContainsKey(item.name))
+            {
+                Texture2D preview = AssetPreview.GetAssetPreview(item.gameObject);
+                if (preview != null)
+                {
+                    previews.Add(item.name, preview);
                 }
             }
         }
