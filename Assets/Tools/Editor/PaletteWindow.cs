@@ -106,7 +106,7 @@ public class PaletteWindow : EditorWindow
         {
             if (!previews.ContainsKey(item.name))
             {
-                Texture2D preview = AssetPreview.GetAssetPreview(item.gameObject);
+                Texture2D preview = AssetPreview.GetAssetPreview(item);
                 if (preview != null)
                 {
                     previews.Add(item.name, preview);
