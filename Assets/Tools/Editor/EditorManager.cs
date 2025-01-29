@@ -7,6 +7,13 @@ using System;
 [CustomEditor(typeof(Scenary))]
 public class EditorManager : Editor
 {
+    Scenary thisTarget;
+
+    private void OnEnable()
+    {
+        thisTarget = (Scenary)target;
+    }
+
     public enum EditorState
     {
         View, 
@@ -28,6 +35,7 @@ public class EditorManager : Editor
     {
         DrawStateButtons();
         StateHandler();
+        EventHandler();
     }
     private void DrawStateButtons()
     {
@@ -53,9 +61,27 @@ public class EditorManager : Editor
                 Tools.current = Tool.View;
                 break;
             case EditorState.Paint:
-                Tools.current = Tool.Move;
+                Tools.current = Tool.None;
                 break;
         }
         SceneView.currentDrawingSceneView.in2DMode = true;
     }
+
+    private void EventHandler() 
+    {
+        HandleUtility.AddDefaultControl(
+        GUIUtility.GetControlID(FocusType.Passive));
+
+        Camera camera = SceneView.currentDrawingSceneView.camera;
+        Vector3 mousePosition = new Vector3(Event.current.mousePosition.x, Event.current.mousePosition.y, camera.nearClipPlane);
+        mousePosition.y = Screen.height - mousePosition.y - 36.0f;
+        //Debug.LogFormat("MousePos: {0}", mousePosition);
+        Vector3 worldPos = camera.ScreenToWorldPoint(mousePosition);
+        Debug.LogFormat("MousePos: {0}", worldPos);
+        Vector3 gridPos = thisTarget.WorldToGridCoordinates(worldPos);
+        int col = (int) gridPos.x;
+        int row = (int) gridPos.y;
+        Debug.LogFormat("GridPos {0},{1}", col, row);
+    }
+
 }
