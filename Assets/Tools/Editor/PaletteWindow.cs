@@ -12,13 +12,14 @@ public class PaletteWindow : EditorWindow
     // carpetas como categorias de items haya y se guardara cada item en su 
     // carpeta correspondiente. Maybe agruparlos aqui con un diccionario de listas??
 
-    //private List<PaletteItem> items;
     private List<GameObject> items;
-    //private Dictionary<PaletteItem, Texture2D> previews;
     private Dictionary<string, Texture2D> previews;
     private Vector2 scrollPosition;
     private const float buttonWidth = 80;
     private const float buttonHeight = 90;
+
+    public delegate void itemSelectedDelegate(GameObject item);
+    public static event itemSelectedDelegate ItemSelectedEvent;
 
     public static void ShowPalette()
     {
@@ -28,8 +29,6 @@ public class PaletteWindow : EditorWindow
     }
     private void OnEnable()
     {
-        //items = EditorUtils.GetAssetsWithScript<PaletteItem>(path);
-        //previews = new Dictionary<PaletteItem, Texture2D>();
         items = EditorUtils.GetAssets(path);
         previews = new Dictionary<string, Texture2D>();
     }
@@ -73,10 +72,9 @@ public class PaletteWindow : EditorWindow
     {
         if (index != -1)
         {
-            //PaletteItem selectedItem = items[index];
-            //Debug.Log("Selected Item is: " + selectedItem.itemName);
             GameObject selectedItem = items[index];
             Debug.Log("Selected Item is: " + selectedItem.name);
+            if (ItemSelectedEvent != null) ItemSelectedEvent(selectedItem);
         }
     }
     private void DrawScroll()
@@ -91,17 +89,6 @@ public class PaletteWindow : EditorWindow
     }
     private void GeneratePreviews()
     {
-        /*foreach (PaletteItem item in items)
-        {
-            if (!previews.ContainsKey(item))
-            {
-                Texture2D preview = AssetPreview.GetAssetPreview(item.gameObject); 
-                if (preview != null)
-                {
-                    previews.Add(item, preview);
-                }
-            }
-        }*/
         foreach (GameObject item in items)
         {
             if (!previews.ContainsKey(item.name))

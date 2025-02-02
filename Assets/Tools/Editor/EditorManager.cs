@@ -8,12 +8,20 @@ using System;
 public class EditorManager : Editor
 {
     Scenary thisTarget;
+    GameObject itemSelected;
 
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
-    }
 
+        // Subscribe to the event called when a new item is selected in the palette
+        PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
+    }
+    private void OnDisable()
+    {
+        // Unsubscribe from the event called when a new item is selected in the palette
+        PaletteWindow.ItemSelectedEvent -= new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
+    }
     public enum EditorState
     {
         View, 
@@ -23,8 +31,8 @@ public class EditorManager : Editor
     // Start is called before the first frame update
     void Start()
     {
-        currentState = EditorState.View;   
-        Debug.Log("sadasda");
+        currentState = EditorState.View;
+        itemSelected = null;
     }
 
     // Update is called once per frame
@@ -63,6 +71,8 @@ public class EditorManager : Editor
             case EditorState.Paint:
                 Tools.current = Tool.None;
                 break;
+            default:
+                break;
         }
         SceneView.currentDrawingSceneView.in2DMode = true;
     }
@@ -77,11 +87,34 @@ public class EditorManager : Editor
         mousePosition.y = Screen.height - mousePosition.y - 36.0f;
         //Debug.LogFormat("MousePos: {0}", mousePosition);
         Vector3 worldPos = camera.ScreenToWorldPoint(mousePosition);
-        Debug.LogFormat("MousePos: {0}", worldPos);
+        //Debug.LogFormat("MousePos: {0}", worldPos);
         Vector3 gridPos = thisTarget.WorldToGridCoordinates(worldPos);
         int col = (int) gridPos.x;
         int row = (int) gridPos.y;
-        Debug.LogFormat("GridPos {0},{1}", col, row);
+        if (thisTarget.IsInsideGridBounds(gridPos)) Debug.LogFormat("GridPos {0},{1}", col, row);
+
+        switch (currentState)
+        {
+            case EditorState.Paint:
+                if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag)
+                    Paint(col, row);
+                break;
+            default:
+                break;
+        }
+    }
+    private void Paint(int col, int row)
+    {
+        if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
+
+        GameObject newItem = PrefabUtility.InstantiatePrefab(itemSelected) as GameObject;
+        newItem.transform.parent = thisTarget.transform;
+        newItem.name = string.Format("[{0},{1}][{2}]", col, row, newItem.name);
+        newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
     }
 
+    private void UpdateCurrentPieceInstance(GameObject item)
+    {
+        itemSelected = item;
+    }
 }
