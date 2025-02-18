@@ -10,9 +10,16 @@ public class EditorManager : Editor
     Scenary thisTarget;
     GameObject itemSelected;
 
+    /// <summary>
+    /// Array which contains the instantiated items on the grid using the editor.
+    /// 1st index: row number | 2nd index: column number
+    /// </summary>
+    GameObject[,] itemsPlaced;
+
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
+        itemsPlaced = new GameObject[thisTarget.TotalRows, thisTarget.TotalColumns];
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
@@ -107,10 +114,15 @@ public class EditorManager : Editor
     {
         if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
 
+        if (itemsPlaced[row, col] != null)
+        {
+            DestroyImmediate(itemsPlaced[row, col]);
+        }
         GameObject newItem = PrefabUtility.InstantiatePrefab(itemSelected) as GameObject;
         newItem.transform.parent = thisTarget.transform;
         newItem.name = string.Format("[{0},{1}][{2}]", col, row, newItem.name);
         newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
+        itemsPlaced[row, col] = newItem;
     }
 
     private void UpdateCurrentPieceInstance(GameObject item)
