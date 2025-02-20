@@ -32,7 +32,8 @@ public class EditorManager : Editor
     public enum EditorState
     {
         View, 
-        Paint
+        Paint,
+        Erase
     }
     private EditorState currentState;
     // Start is called before the first frame update
@@ -76,6 +77,7 @@ public class EditorManager : Editor
                 Tools.current = Tool.View;
                 break;
             case EditorState.Paint:
+            case EditorState.Erase:
                 Tools.current = Tool.None;
                 break;
             default:
@@ -106,6 +108,10 @@ public class EditorManager : Editor
                 if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag)
                     Paint(col, row);
                 break;
+            case EditorState.Erase:
+                if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag)
+                    Erase(col, row);
+                break;
             default:
                 break;
         }
@@ -123,6 +129,18 @@ public class EditorManager : Editor
         newItem.name = string.Format("[{0},{1}][{2}]", col, row, newItem.name);
         newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
         itemsPlaced[row, col] = newItem;
+    }
+
+    private void Erase(int col, int row)
+    {
+        if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
+
+        if (itemsPlaced[row, col] != null)
+        {
+            DestroyImmediate(itemsPlaced[row, col]);
+        }
+
+        itemsPlaced[row, col] = null;
     }
 
     private void UpdateCurrentPieceInstance(GameObject item)
