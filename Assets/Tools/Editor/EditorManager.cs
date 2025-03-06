@@ -7,6 +7,13 @@ using System;
 [CustomEditor(typeof(Scenary))]
 public class EditorManager : Editor
 {
+    public struct PlacedItem 
+    {
+        public int col, row;
+        public GameObject item;
+    } 
+
+
     Scenary thisTarget;
     GameObject itemSelected;
 
@@ -14,12 +21,12 @@ public class EditorManager : Editor
     /// Array which contains the instantiated items on the grid using the editor.
     /// 1st index: row number | 2nd index: column number
     /// </summary>
-    GameObject[,] itemsPlaced;
+    [SerializeField]
+    List<PlacedItem> items = new List<PlacedItem>();
 
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
-        itemsPlaced = new GameObject[thisTarget.TotalRows, thisTarget.TotalColumns];
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
@@ -120,27 +127,57 @@ public class EditorManager : Editor
     {
         if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
 
-        if (itemsPlaced[row, col] != null)
+        PlacedItem itemToRemove = new PlacedItem();
+        bool found = false;
+
+        foreach(var i in items) 
         {
-            DestroyImmediate(itemsPlaced[row, col]);
+            if(i.col == col && i.row == row) 
+            {
+                found = true;
+                itemToRemove = i;
+                break;
+            }
         }
+
+        if (found)
+        {
+            DestroyImmediate(itemToRemove.item);
+            items.Remove(itemToRemove);
+        }
+
         GameObject newItem = PrefabUtility.InstantiatePrefab(itemSelected) as GameObject;
         newItem.transform.parent = thisTarget.transform;
         newItem.name = string.Format("[{0},{1}][{2}]", col, row, newItem.name);
         newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
-        itemsPlaced[row, col] = newItem;
+
+        PlacedItem n = new PlacedItem();
+        n.col = col; n.row = row; n.item = newItem;
+        items.Add(n);
     }
 
     private void Erase(int col, int row)
     {
         if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
 
-        if (itemsPlaced[row, col] != null)
+        PlacedItem itemToRemove = new PlacedItem();
+        bool found = false;
+
+        foreach (var i in items)
         {
-            DestroyImmediate(itemsPlaced[row, col]);
+            if (i.col == col && i.row == row)
+            {
+                found = true;
+                itemToRemove = i;
+                break;
+            }
         }
 
-        itemsPlaced[row, col] = null;
+        if (found)
+        {
+            DestroyImmediate(itemToRemove.item);
+            items.Remove(itemToRemove);
+        }
     }
 
     private void UpdateCurrentPieceInstance(GameObject item)
