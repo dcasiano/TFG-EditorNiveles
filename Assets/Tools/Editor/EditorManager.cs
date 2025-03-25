@@ -7,26 +7,19 @@ using System;
 [CustomEditor(typeof(Scenary))]
 public class EditorManager : Editor
 {
-    public struct PlacedItem 
-    {
-        public int col, row;
-        public GameObject item;
-    } 
-
-
     Scenary thisTarget;
     GameObject itemSelected;
+    public LevelObjectScriptable oS;
 
     /// <summary>
     /// Array which contains the instantiated items on the grid using the editor.
-    /// 1st index: row number | 2nd index: column number
     /// </summary>
-    [SerializeField]
-    List<PlacedItem> items = new List<PlacedItem>();
+    [SerializeField] GameObject[] itemsPlaced;
 
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
+        itemsPlaced = new GameObject[thisTarget.TotalColumns * thisTarget.TotalRows];
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
@@ -107,7 +100,7 @@ public class EditorManager : Editor
         Vector3 gridPos = thisTarget.WorldToGridCoordinates(worldPos);
         int col = (int) gridPos.x;
         int row = (int) gridPos.y;
-        if (thisTarget.IsInsideGridBounds(gridPos)) Debug.LogFormat("GridPos {0},{1}", col, row);
+        //if (thisTarget.IsInsideGridBounds(gridPos)) Debug.LogFormat("GridPos {0},{1}", col, row);
 
         switch (currentState)
         {
@@ -127,23 +120,11 @@ public class EditorManager : Editor
     {
         if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
 
-        PlacedItem itemToRemove = new PlacedItem();
-        bool found = false;
+        int index = row * thisTarget.TotalColumns + col;
 
-        foreach(var i in items) 
+        if (itemsPlaced[index] != null) 
         {
-            if(i.col == col && i.row == row) 
-            {
-                found = true;
-                itemToRemove = i;
-                break;
-            }
-        }
-
-        if (found)
-        {
-            DestroyImmediate(itemToRemove.item);
-            items.Remove(itemToRemove);
+            DestroyImmediate(itemsPlaced[index]);
         }
 
         GameObject newItem = PrefabUtility.InstantiatePrefab(itemSelected) as GameObject;
@@ -151,37 +132,54 @@ public class EditorManager : Editor
         newItem.name = string.Format("[{0},{1}][{2}]", col, row, newItem.name);
         newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
 
-        PlacedItem n = new PlacedItem();
-        n.col = col; n.row = row; n.item = newItem;
-        items.Add(n);
+        itemsPlaced[index] = newItem;
+
+        for(int i = 0; i < itemsPlaced.Length; i++) 
+        {
+            Debug.Log(itemsPlaced[i] + "\n");
+        }
     }
 
     private void Erase(int col, int row)
     {
         if (!thisTarget.IsInsideGridBounds(col, row) || itemSelected == null) return;
 
-        PlacedItem itemToRemove = new PlacedItem();
-        bool found = false;
+        int index = row * thisTarget.TotalColumns + col;
 
-        foreach (var i in items)
+        if (itemsPlaced[index] != null)
         {
-            if (i.col == col && i.row == row)
-            {
-                found = true;
-                itemToRemove = i;
-                break;
-            }
-        }
-
-        if (found)
-        {
-            DestroyImmediate(itemToRemove.item);
-            items.Remove(itemToRemove);
+            DestroyImmediate(itemsPlaced[index]);
         }
     }
 
     private void UpdateCurrentPieceInstance(GameObject item)
     {
         itemSelected = item;
+    }
+
+    private void SaveObjects() 
+    {
+        oS.objects = itemsPlaced;
+    }
+
+    static void PlayModeChecker()
+    {
+        // Subscribe to the play mode state change event
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    }
+
+    // Callback method to handle play mode state changes
+    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        // Check if the state is EnteredPlayMode
+        if (state == PlayModeStateChange.ExitingEditMode)
+        {
+            
+        }
+
+        else if (state == PlayModeStateChange.EnteredEditMode) 
+        {
+
+        }
     }
 }

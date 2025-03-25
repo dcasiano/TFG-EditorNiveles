@@ -1,10 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using UnityEngine;
-
 [CreateAssetMenu(fileName = "Logic", menuName = "ScriptableObjects/LogicScriptable", order = 1)]
+[Serializable]
 public class LogicScriptable : ScriptableObject
 {
     public string prefabName;
