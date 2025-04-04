@@ -9,6 +9,5 @@ using System;
 public class LevelObjectScriptable : ScriptableObject
 {
     public GameObject[] objects;
-    public int saved = 0;
 }
 

@@ -15,8 +15,7 @@ public static class EditorUtils
     // Remove all the elements of the scene
     public static void CleanScene()
     {
-        GameObject[] allObjects = Object.FindObjectsOfType<GameObject>
-       ();
+        GameObject[] allObjects = Object.FindObjectsOfType<GameObject>();
         foreach (GameObject go in allObjects)
         {
             GameObject.DestroyImmediate(go);
@@ -27,6 +26,7 @@ public static class EditorUtils
     {
         NewScene();
         CleanScene();
+        EditorManager.OnNewLevel();
 
         GameObject mainCamera = new GameObject("Main Camera");
         mainCamera.transform.position = new Vector3(0, 1, -10);
