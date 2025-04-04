@@ -73,7 +73,7 @@ public class PaletteWindow : EditorWindow
         if (index != -1)
         {
             GameObject selectedItem = items[index];
-            Debug.Log("Selected Item is: " + selectedItem.name);
+            //Debug.Log("Selected Item is: " + selectedItem.name);
             if (ItemSelectedEvent != null) ItemSelectedEvent(selectedItem);
         }
     }

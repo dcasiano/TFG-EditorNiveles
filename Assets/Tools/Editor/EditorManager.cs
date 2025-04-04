@@ -9,25 +9,64 @@ public class EditorManager : Editor
 {
     Scenary thisTarget;
     GameObject itemSelected;
-    public LevelObjectScriptable oS;
 
     /// <summary>
     /// Array which contains the instantiated items on the grid using the editor.
     /// </summary>
     [SerializeField] GameObject[] itemsPlaced;
+    string scriptableobjectsPath = "Assets/ScriptableObjects";
+    LevelObjectScriptable scriptableObject;
+
+    //static EditorManager()
+    //{
+    //    Debug.Log("mmmmmmm");
+    //    EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    //}
+    //~EditorManager()
+    //{
+    //    EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+    //}
 
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
+        //Debug.Log("Length itemsPlaced: "+itemsPlaced.Length);
         itemsPlaced = new GameObject[thisTarget.TotalColumns * thisTarget.TotalRows];
+
+        scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(scriptableobjectsPath + "/LevelObjects.asset");
+        if (scriptableObject == null)
+        {
+            scriptableObject = CreateInstance<LevelObjectScriptable>();
+            AssetDatabase.CreateAsset(scriptableObject, scriptableobjectsPath + "/LevelObjects.asset");
+            AssetDatabase.SaveAssets();
+            SaveObjects();
+        }
+        else LoadObjects();
+
+        int aux = 0;
+        for (int i = 0; i < itemsPlaced.Length; i++)
+        {
+            if (itemsPlaced[i] != null)
+            {
+                aux = 1;
+                break;
+            }
+        }
+        //if (aux == 1) Debug.Log("yyyyyy");
+        //else Debug.Log("XXXXX");
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
     }
     private void OnDisable()
     {
+        //SaveObjects();
+
         // Unsubscribe from the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent -= new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        Debug.Log("Disable");
     }
     public enum EditorState
     {
@@ -134,10 +173,10 @@ public class EditorManager : Editor
 
         itemsPlaced[index] = newItem;
 
-        for(int i = 0; i < itemsPlaced.Length; i++) 
-        {
-            Debug.Log(itemsPlaced[i] + "\n");
-        }
+        //for(int i = 0; i < itemsPlaced.Length; i++) 
+        //{
+        //    Debug.Log(itemsPlaced[i] + "\n");
+        //}
     }
 
     private void Erase(int col, int row)
@@ -159,27 +198,53 @@ public class EditorManager : Editor
 
     private void SaveObjects() 
     {
-        oS.objects = itemsPlaced;
+        //oS.objects = itemsPlaced;
+        if (scriptableObject == null)
+        {
+            Debug.Log("No se ha podido guardar");
+            return;
+        }
+        //mySO.objects = new GameObject[itemsPlaced.Length];
+        //for(int i = 0; i < itemsPlaced.Length; i++)
+        //{
+        //    mySO.objects[i] = (GameObject)EditorGUILayout.ObjectField(itemsPlaced[i], typeof(GameObject), true);
+        //}
+        scriptableObject.objects = (GameObject[])itemsPlaced.Clone();
+        scriptableObject.saved = 1;
+        EditorUtility.SetDirty(scriptableObject);
+        AssetDatabase.SaveAssets();
+        Debug.Log("items guardados");
     }
 
-    static void PlayModeChecker()
+    private void LoadObjects()
     {
-        // Subscribe to the play mode state change event
-        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        if (scriptableObject == null) return;
+        //itemsPlaced = mySO.objects;
+        itemsPlaced = (GameObject[])scriptableObject.objects.Clone();
+        scriptableObject.saved = 0;
+        Debug.Log("items cargados");
     }
+
+    //static void PlayModeChecker()
+    //{
+    //    // Subscribe to the play mode state change event
+    //    EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    //}
 
     // Callback method to handle play mode state changes
-    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
         // Check if the state is EnteredPlayMode
         if (state == PlayModeStateChange.ExitingEditMode)
         {
-            
+            Debug.Log("Saliendo Edit Mode");
+            SaveObjects();
         }
 
         else if (state == PlayModeStateChange.EnteredEditMode) 
         {
-
+            Debug.Log("Entrado Edit Mode");
+            LoadObjects();
         }
     }
 }
