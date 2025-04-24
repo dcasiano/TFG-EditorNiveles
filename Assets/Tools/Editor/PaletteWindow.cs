@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Xml;
+using Unity.VisualScripting;
+using UnityEngine.UIElements;
 
 public class PaletteWindow : EditorWindow
 {
@@ -12,8 +15,13 @@ public class PaletteWindow : EditorWindow
     // carpetas como categorias de items haya y se guardara cada item en su 
     // carpeta correspondiente. Maybe agruparlos aqui con un diccionario de listas??
 
+    private Dictionary<string, List<GameObject>> categories;
+    private List<string> categoryLabels;
+    private string selectedCategory;
+    private string lastCategory;
+
     private List<GameObject> items;
-    private Dictionary<string, Texture2D> previews;
+    private Dictionary<string, Dictionary<string, Texture2D>> previews;
     private Vector2 scrollPosition;
     private const float buttonWidth = 80;
     private const float buttonHeight = 90;
@@ -29,31 +37,61 @@ public class PaletteWindow : EditorWindow
     }
     private void OnEnable()
     {
-        items = EditorUtils.GetAssets(path);
-        previews = new Dictionary<string, Texture2D>();
+        InitializeCategories();
     }
     private void Update()
     {
-        if (previews.Count != items.Count)
+        if (selectedCategory != lastCategory) 
+        {
+            items = categories[selectedCategory];
+            lastCategory = selectedCategory;
+            Debug.Log(items.Count);
+        }
+
+        if (previews[selectedCategory].Count != items.Count)
         {
             GeneratePreviews();
         }
     }
+
+    private void InitializeCategories()
+    {
+        categories = EditorUtils.GetFolders(path);
+        categoryLabels = categories.Keys.ToListPooled();
+
+        previews = new Dictionary<string, Dictionary<string, Texture2D>>();
+        foreach (string category in categories.Keys) 
+        {
+            previews.Add(category, new Dictionary<string, Texture2D>());
+        }
+
+        selectedCategory = categories.Keys.ToListPooled()[0];
+        items = categories[selectedCategory];
+    }
+
+    private void DrawTabs()
+    {
+        int index = categories.Keys.ToListPooled().IndexOf(selectedCategory);
+        index = GUILayout.Toolbar(index, categoryLabels.ToArray());
+        selectedCategory = categoryLabels[index]; //[index];
+    }
+
     private void OnGUI()
     {
+        DrawTabs();
         DrawScroll();
     }
     private GUIContent[] GetGUIContentsFromItems()
     {
         List<GUIContent> guiContents = new List<GUIContent>();
-        if (previews.Count == items.Count)
+        if (previews[selectedCategory].Count == items.Count)
         {
             int totalItems = items.Count;
             for (int i = 0; i < totalItems; i++)
             {
                 GUIContent guiContent = new GUIContent();
                 guiContent.text = items[i].name;
-                guiContent.image = previews[items[i].name];
+                guiContent.image = previews[selectedCategory][items[i].name];
                 guiContents.Add(guiContent);
             }
         }
@@ -91,12 +129,12 @@ public class PaletteWindow : EditorWindow
     {
         foreach (GameObject item in items)
         {
-            if (!previews.ContainsKey(item.name))
+            if (!previews[selectedCategory].ContainsKey(item.name))
             {
                 Texture2D preview = AssetPreview.GetAssetPreview(item);
                 if (preview != null)
                 {
-                    previews.Add(item.name, preview);
+                    previews[selectedCategory].Add(item.name, preview);
                 }
             }
         }

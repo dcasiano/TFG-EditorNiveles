@@ -62,6 +62,7 @@ public static class EditorUtils
         }
         return assetList;
     }
+
     // Finds all prefabs in the specified path
     public static List<GameObject> GetAssets(string path)
     {
@@ -76,5 +77,23 @@ public static class EditorUtils
             if (asset != null) assetList.Add(asset);
         }
         return assetList;
+    }
+
+    public static Dictionary<string, List<GameObject>> GetFolders(string path)
+    {
+        Dictionary<string, List<GameObject>> folderAssets = new Dictionary<string, List<GameObject>>();
+        string[] folders = AssetDatabase.GetSubFolders(path);
+
+        foreach(string folder in folders)
+        {
+            folderAssets.Add(folder.Replace(path + "/", ""), GetAssets(folder));
+        }
+
+        return folderAssets;
+    }
+
+    public static int CheckFolders(string path) 
+    {
+        return AssetDatabase.GetSubFolders(path).Length;
     }
 }
