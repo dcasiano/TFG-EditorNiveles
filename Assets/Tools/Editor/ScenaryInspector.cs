@@ -80,6 +80,7 @@ public class ScenaryInspector : Editor
             if (!string.IsNullOrEmpty(newLayerName))
             {
                 thisTarget.layers.Add(newLayerName);
+                EditorManager.OnNewLayerCreated();
                 newLayerName = "";
             }
         }
@@ -175,13 +176,21 @@ public class ScenaryInspector : Editor
 
         int index = row * thisTarget.TotalColumns + col;
         int scenarySize = thisTarget.TotalColumns * thisTarget.TotalRows;
+        int selectedLayer = thisTarget.selectedLayerIndex;
 
+        if (thisTarget.transform.Find("Layer" + selectedLayer) == null)
+        {
+            GameObject layerObj = new GameObject("Layer" + selectedLayer);
+            layerObj.transform.SetParent(thisTarget.transform);
+            layerObj.transform.localPosition = Vector3.zero;
+        }
         GameObject newItem = PrefabUtility.InstantiatePrefab(itemSelected) as GameObject;
-        newItem.transform.parent = thisTarget.transform;
-        newItem.name = string.Format("[{0},{1}][{2}]", col, row, newItem.name);
+        Transform layerParent = thisTarget.transform.Find("Layer" + selectedLayer);
+        newItem.transform.SetParent(layerParent);
+        newItem.name = string.Format("L{0}-[{1},{2}][{3}]", selectedLayer, col, row, newItem.name);
         newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
 
-        EditorManager.PlaceNewItem(newItem, index, scenarySize);
+        EditorManager.PlaceNewItem(newItem, index, scenarySize, thisTarget.selectedLayerIndex, thisTarget.layers.Count);
     }
 
     private void Erase(int col, int row)
@@ -189,7 +198,7 @@ public class ScenaryInspector : Editor
         if (!thisTarget.IsInsideGridBounds(col, row)) return;
 
         int index = row * thisTarget.TotalColumns + col;
-        EditorManager.DeleteItem(index);
+        EditorManager.DeleteItem(index, thisTarget.selectedLayerIndex);
     }
 
     private void UpdateCurrentPieceInstance(GameObject item)

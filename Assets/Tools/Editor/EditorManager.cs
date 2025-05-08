@@ -14,7 +14,7 @@ public static class EditorManager
     /// <summary>
     /// Array which contains the instantiated items on the grid using the editor.
     /// </summary>
-    static GameObject[] placedItems;
+    static GameObject[][] placedItems;
     static readonly string scriptableObjectPath = "Assets/ScriptableObjects/LevelObjects.asset";
     static EditorManager()
     {
@@ -63,7 +63,13 @@ public static class EditorManager
             Debug.Log("No se puede guardar un array de objetos vacio");
             return;
         }
-        scriptableObject.objects = (GameObject[])placedItems.Clone();
+        //scriptableObject.objects = (GameObject[][])placedItems.Clone();
+        int numLayers = placedItems.Length;
+        scriptableObject.objects = new GameObject[numLayers][];
+        for (int i = 0; i < numLayers; i++)
+        {
+            scriptableObject.objects[i] = (GameObject[])placedItems[i].Clone();
+        }
         EditorUtility.SetDirty(scriptableObject);
         AssetDatabase.SaveAssets();
         Debug.Log("items guardados");
@@ -71,7 +77,13 @@ public static class EditorManager
     private static void LoadObjectsFromDisk()
     {
         if (scriptableObject == null) return;
-        placedItems = (GameObject[])scriptableObject.objects.Clone();
+        //placedItems = (GameObject[][])scriptableObject.objects.Clone();
+        int numLayers = scriptableObject.objects.Length;
+        placedItems = new GameObject[numLayers][];
+        for(int i = 0; i < numLayers; i++)
+        {
+            placedItems[i] = (GameObject[])scriptableObject.objects[i].Clone();
+        }
         Debug.Log("items cargados");
     }
     /// <summary>
@@ -80,27 +92,34 @@ public static class EditorManager
     /// <param name="newItem"> The item placed. </param>
     /// <param name="index"> Its index on the grid. </param>
     /// <param name="gridSize"> Size of the grid. </param>
-    public static void PlaceNewItem(GameObject newItem, int index, int gridSize)
+    /// <param name="selectedLayer"> The layer where the new item is supposed to be placed. </param>
+    /// <param name="numLayers"> The total number of layers. </param>
+    public static void PlaceNewItem(GameObject newItem, int index, int gridSize, int selectedLayer, int numLayers)
     {
-        if (placedItems == null) placedItems = new GameObject[gridSize];
-        DeleteItem(index);
-        placedItems[index] = newItem;
+        if (placedItems == null)
+        {
+            placedItems = new GameObject[numLayers][];
+            for (int i = 0; i < numLayers; i++) placedItems[i] = new GameObject[gridSize];
+        }
+        DeleteItem(index, selectedLayer);
+        placedItems[selectedLayer][index] = newItem;
     }
     /// <summary>
     /// This method must be called when we erase an item from the grid using this editor tool.
     /// </summary>
     /// <param name="index"> The index on the grid of the item we want to erase. </param>
-    public static void DeleteItem(int index)
+    /// <param name="selectedLayer"> The layer where the item we want to erase is. </param>
+    public static void DeleteItem(int index, int selectedLayer)
     {
         if (placedItems == null)
         {
             Debug.Log("No se pudo borrar el objeto");
             return;
         }
-        if (placedItems[index] != null) 
+        if (placedItems[selectedLayer][index] != null) 
         {
-            Object.DestroyImmediate(placedItems[index]);
-            placedItems[index] = null;
+            Object.DestroyImmediate(placedItems[selectedLayer][index]);
+            placedItems[selectedLayer][index] = null;
         }
     }
     private static void ClearObjects()
@@ -116,5 +135,23 @@ public static class EditorManager
     {
         ClearObjects();
         CreateScriptableObject();
+    }
+    /// <summary>
+    /// This method must be called when we create a new layer using the editor.
+    /// </summary>
+    public static void OnNewLayerCreated()
+    {
+        int newNumLayers = placedItems.Length + 1;
+        int gridSize = placedItems[0].Length;
+
+        GameObject[][] newPlacedItems = new GameObject[newNumLayers][];
+        for (int i = 0; i < newNumLayers - 1; i++)
+        {
+            newPlacedItems[i] = new GameObject[gridSize];
+            System.Array.Copy(placedItems[i], newPlacedItems[i], gridSize);
+        }
+        newPlacedItems[newNumLayers - 1] = new GameObject[gridSize];
+        
+        placedItems = newPlacedItems;
     }
 }
