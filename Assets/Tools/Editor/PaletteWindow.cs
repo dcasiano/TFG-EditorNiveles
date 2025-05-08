@@ -31,8 +31,7 @@ public class PaletteWindow : EditorWindow
 
     public static void ShowPalette()
     {
-        instance = (PaletteWindow)GetWindow
-       (typeof(PaletteWindow));
+        instance = (PaletteWindow)GetWindow(typeof(PaletteWindow));
         instance.titleContent = new GUIContent("Palette");
     }
     private void OnEnable()

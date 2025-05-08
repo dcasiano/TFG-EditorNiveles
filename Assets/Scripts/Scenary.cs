@@ -13,6 +13,11 @@ public class Scenary : MonoBehaviour
     private readonly Color normalColor = Color.grey;
     private readonly Color selectedColor = Color.Lerp(Color.cyan, Color.blue, 0.5f);
     private readonly Color selectedFrameColor = Color.blue;
+
+    [HideInInspector]
+    public List<string> layers = new List<string>();
+    [HideInInspector]
+    public int selectedLayerIndex = 0;
     public int TotalColumns
     {
         get { return totalColumns; }
@@ -23,7 +28,10 @@ public class Scenary : MonoBehaviour
         get { return totalRows; }
         set { totalRows = value; }
     }
-
+    private void Reset()
+    {
+        layers = new List<string> { "Logic", "Graphics" };
+    }
     // Draws a rectangle which represents the frame of the grid
     private void GridFrameGizmo(int cols, int rows)
     {

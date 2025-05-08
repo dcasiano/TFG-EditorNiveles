@@ -9,10 +9,11 @@ public class ScenaryInspector : Editor
 {
     Scenary thisTarget;
     GameObject itemSelected;
-
+    string newLayerName;
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
+        
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
@@ -40,6 +41,66 @@ public class ScenaryInspector : Editor
     void Update()
     {
     }
+    public override void OnInspectorGUI()
+    {
+        //base.OnInspectorGUI();
+        DrawDefaultInspector();
+        DrawLayersGUI();
+    }
+    private void DrawLayersGUI()
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Layers", EditorStyles.boldLabel);
+        
+        for (int i = 0; i < thisTarget.layers.Count; i++)
+        {
+            GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+            Color defaultColor = GUI.backgroundColor;
+            if (i == thisTarget.selectedLayerIndex)
+            {
+                buttonStyle.normal.textColor = Color.white;
+                //buttonStyle.normal.background = MakeTex(1, 1, new Color(0.4f, 0.6f, 1.0f)); 
+                GUI.backgroundColor = new Color(0.4f, 0.6f, 1.0f);
+            }
+
+            if (GUILayout.Button(thisTarget.layers[i], buttonStyle))
+            {
+                thisTarget.selectedLayerIndex = i;
+                GUI.FocusControl(null);
+            }
+            GUI.backgroundColor = defaultColor;
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Add New Layer:");
+        newLayerName = EditorGUILayout.TextField("Name", newLayerName);
+
+        if (GUILayout.Button("Add Layer"))
+        {
+            if (!string.IsNullOrEmpty(newLayerName))
+            {
+                thisTarget.layers.Add(newLayerName);
+                newLayerName = "";
+            }
+        }
+
+        // Guardar los cambios
+        if (GUI.changed)
+        {
+            EditorUtility.SetDirty(thisTarget);
+        }
+
+    }
+    //private Texture2D MakeTex(int width, int height, Color col)
+    //{
+    //    Color[] pix = new Color[width * height];
+    //    for (int i = 0; i < pix.Length; i++) pix[i] = col;
+
+    //    Texture2D result = new Texture2D(width, height);
+    //    result.SetPixels(pix);
+    //    result.Apply();
+    //    return result;
+    //}
     private void OnSceneGUI()
     {
         DrawStateButtons();
