@@ -8,6 +8,8 @@ public class Scenary : MonoBehaviour
     private int totalColumns = 20;
     [SerializeField]
     private int totalRows = 10;
+    [SerializeField]
+    private float layersDepthValue = 2.0f;
     public const float gridSize = 1.0f;
 
     private readonly Color normalColor = Color.grey;
@@ -18,6 +20,8 @@ public class Scenary : MonoBehaviour
     public List<string> layers = new List<string>();
     [HideInInspector]
     public int selectedLayerIndex = 0;
+    [HideInInspector]
+    public List<float> layersDepth = new List<float>();
     public int TotalColumns
     {
         get { return totalColumns; }
@@ -31,6 +35,7 @@ public class Scenary : MonoBehaviour
     private void Reset()
     {
         layers = new List<string> { "Logic", "Graphics" };
+        layersDepth = new List<float> { 0.0f, 0.0f };
     }
     // Draws a rectangle which represents the frame of the grid
     private void GridFrameGizmo(int cols, int rows)
@@ -103,5 +108,10 @@ public class Scenary : MonoBehaviour
     public bool IsInsideGridBounds(int col, int row)
     {
         return (col >= 0 && col < totalColumns && row >= 0 && row < totalRows);
+    }
+
+    public float GetLayersDepthValue()
+    {
+        return layersDepthValue;
     }
 }

@@ -13,7 +13,6 @@ public class ScenaryInspector : Editor
     private void OnEnable()
     {
         thisTarget = (Scenary)target;
-        
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
@@ -36,7 +35,7 @@ public class ScenaryInspector : Editor
         currentState = EditorState.View;
         itemSelected = null;
     }
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -72,7 +71,24 @@ public class ScenaryInspector : Editor
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Add New Layer:");
+        EditorGUILayout.LabelField("Change Layer Depth");
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("-", GUILayout.Width(30)))
+        {
+            thisTarget.layersDepth[thisTarget.selectedLayerIndex] -= thisTarget.GetLayersDepthValue();
+            EditorManager.OnLayerDepthModified(thisTarget.selectedLayerIndex, -thisTarget.GetLayersDepthValue());
+        }
+        
+        EditorGUILayout.LabelField(thisTarget.layers[thisTarget.selectedLayerIndex], GUILayout.ExpandWidth(true));
+        if (GUILayout.Button("+", GUILayout.Width(30)))
+        {
+            thisTarget.layersDepth[thisTarget.selectedLayerIndex] += thisTarget.GetLayersDepthValue();
+            EditorManager.OnLayerDepthModified(thisTarget.selectedLayerIndex, thisTarget.GetLayersDepthValue());
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Add New Layer");
         newLayerName = EditorGUILayout.TextField("Name", newLayerName);
 
         if (GUILayout.Button("Add Layer"))
@@ -80,6 +96,7 @@ public class ScenaryInspector : Editor
             if (!string.IsNullOrEmpty(newLayerName))
             {
                 thisTarget.layers.Add(newLayerName);
+                thisTarget.layersDepth.Add(0.0f);
                 EditorManager.OnNewLayerCreated();
                 newLayerName = "";
             }
@@ -138,7 +155,8 @@ public class ScenaryInspector : Editor
             default:
                 break;
         }
-        SceneView.currentDrawingSceneView.in2DMode = true;
+        //SceneView.currentDrawingSceneView.in2DMode = true;
+        
     }
 
     private void EventHandler() 

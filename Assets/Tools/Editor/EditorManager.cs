@@ -154,4 +154,25 @@ public static class EditorManager
         
         placedItems = newPlacedItems;
     }
+    /// <summary>
+    /// This method must be called when we modify the depth of the selected layer.
+    /// </summary>
+    /// <param name="selectedLayer"> The index of the selected layer </param>
+    /// <param name="depthModified"> The amount of Unity units we want to translate the layer. 
+    /// The sign must be specified </param>
+    public static void OnLayerDepthModified(int selectedLayer, float depthModified)
+    {
+        if (placedItems == null) return;
+        if (placedItems[selectedLayer] == null)
+        {
+            Debug.Log("No existe la capa a desplazar");
+            return;
+        }
+        int gridSize = placedItems[0].Length;
+        for (int i = 0; i < gridSize; i++)
+        {
+            if (placedItems[selectedLayer][i] != null)
+                placedItems[selectedLayer][i].transform.position += new Vector3(0, 0, depthModified);
+        }
+    }
 }
