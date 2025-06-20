@@ -8,6 +8,6 @@ using System;
 [Serializable]
 public class LevelObjectScriptable : ScriptableObject
 {
-    public GameObject[][] objects;
+    public List<GameObjectsGroup> objects;
 }
 

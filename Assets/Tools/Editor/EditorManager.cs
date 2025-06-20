@@ -64,11 +64,13 @@ public static class EditorManager
             return;
         }
         //scriptableObject.objects = (GameObject[][])placedItems.Clone();
+        scriptableObject.objects = new List<GameObjectsGroup>();
         int numLayers = placedItems.Length;
-        scriptableObject.objects = new GameObject[numLayers][];
         for (int i = 0; i < numLayers; i++)
         {
-            scriptableObject.objects[i] = (GameObject[])placedItems[i].Clone();
+            GameObjectsGroup group = new GameObjectsGroup();
+            group.gameObjects = new List<GameObject>(placedItems[i]);
+            scriptableObject.objects.Add(group);
         }
         EditorUtility.SetDirty(scriptableObject);
         AssetDatabase.SaveAssets();
@@ -76,13 +78,14 @@ public static class EditorManager
     }
     private static void LoadObjectsFromDisk()
     {
-        if (scriptableObject == null) return;
+        if (scriptableObject == null || scriptableObject.objects == null) return;
         //placedItems = (GameObject[][])scriptableObject.objects.Clone();
-        int numLayers = scriptableObject.objects.Length;
+        int numLayers = scriptableObject.objects.Count;
         placedItems = new GameObject[numLayers][];
         for(int i = 0; i < numLayers; i++)
         {
-            placedItems[i] = (GameObject[])scriptableObject.objects[i].Clone();
+            List<GameObject> objectsInLayer = scriptableObject.objects[i].gameObjects;
+            placedItems[i] = objectsInLayer.ToArray();
         }
         Debug.Log("items cargados");
     }
