@@ -9,7 +9,6 @@ using UnityEngine.UIElements;
 public class PaletteWindow : EditorWindow
 {
     public static PaletteWindow instance;
-    private string path = "Assets/Prefabs/LevelObjects";
 
     // TODO: agrupar los items en categorias. En el editor se crearan tantas 
     // carpetas como categorias de items haya y se guardara cada item en su 
@@ -42,6 +41,7 @@ public class PaletteWindow : EditorWindow
     {
         if (selectedCategory != lastCategory) 
         {
+            categories = MetaDataManager.getCategories();
             items = categories[selectedCategory];
             lastCategory = selectedCategory;
             Debug.Log(items.Count);
@@ -55,7 +55,7 @@ public class PaletteWindow : EditorWindow
 
     private void InitializeCategories()
     {
-        categories = EditorUtils.GetFolders(path);
+        categories = MetaDataManager.getCategories();
         categoryLabels = categories.Keys.ToListPooled();
 
         previews = new Dictionary<string, Dictionary<string, Texture2D>>();

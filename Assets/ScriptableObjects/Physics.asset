@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b0e7101845bb5ea4abe44b275edf887f, type: 3}
-  m_Name: Logic
+  m_Name: Physics
   m_EditorClassIdentifier: 
   objectData:
-  - name: PlayerPrefab
+  - name: PhysicsBlock
     prefab:
-    - {fileID: 1873821909350688089, guid: 1eb1162e65d7bb344a9a4fcb94f0c25d, type: 3}
-    rotation: {x: 50, y: 50, z: 50}
+    - {fileID: 1828746096611998563, guid: 41b2ce7dd11863f40a5c705e2f93a910, type: 3}
+    rotation: {x: 0, y: 80, z: 0}

@@ -96,4 +96,14 @@ public static class EditorUtils
     {
         return AssetDatabase.GetSubFolders(path).Length;
     }
+
+    public static string[] GetFolderNames(string path) 
+    {
+        string[] folders = AssetDatabase.GetSubFolders(path);
+        for (int i = 0; i < folders.Length; i++)
+        {
+            folders[i] = folders[i].Replace(path + "/", "");
+        }
+        return folders;
+    }
 }
