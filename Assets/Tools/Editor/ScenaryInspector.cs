@@ -16,6 +16,11 @@ public class ScenaryInspector : Editor
 
         // Subscribe to the event called when a new item is selected in the palette
         PaletteWindow.ItemSelectedEvent += new PaletteWindow.itemSelectedDelegate(UpdateCurrentPieceInstance);
+
+        if (!EditorWindow.HasOpenInstances<PaletteWindow>())
+        {
+            MenuItems.ShowPalette();
+        }
     }
     private void OnDisable()
     {

@@ -12,7 +12,7 @@ public static class MenuItems
     }
 
     [MenuItem("Tools/Level Creator/Show Palette")]
-    private static void ShowPalette()
+    public static void ShowPalette()
     {
         PaletteWindow.ShowPalette();
     }
