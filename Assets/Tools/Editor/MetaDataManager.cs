@@ -17,10 +17,13 @@ public class MetaDataManager : AssetModificationProcessor
 
     private static Dictionary<string, List<GameObject>> categories;
     private static List<string> categoryLabels;
-    private static List<CategoryData> categorieData;
+    private static Dictionary<string, CategoryData> categoriesData;
 
     private static List<string> assetsToLoad;
     private static List<string> assetsToDelete;
+
+    public delegate void metadataChangedDelegate();
+    public static event metadataChangedDelegate metadataChangedEvent;
 
     static MetaDataManager()
     {
@@ -36,17 +39,22 @@ public class MetaDataManager : AssetModificationProcessor
         if (assetsToDelete.Count > 0) DeleteAssets();
     }
 
+    // Creates our metadata containers based on the existing prefab folders 
     private static void InitializeCategories()
     {
         categories = EditorUtils.GetFolders(prefabPath);
         categoryLabels = categories.Keys.ToListPooled();
+        categoriesData = new Dictionary<string, CategoryData>();
 
         foreach (string category in categories.Keys)
         {
-            CategoryData.CreateInstance(category, 0, categories[category]);
+            CategoryData d = CategoryData.CreateInstance(category, 0, categories[category]);
+            categoriesData.Add(category, d);
         }
     }
 
+    /* Callback called when deleting assets. We check if the deleted asset is a metadata container or
+     * part of one, and if so, mark it for deletion */
     public static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions options)
     {
         string folderPath = Path.GetDirectoryName(path).Replace("\\", "/");
@@ -80,22 +88,28 @@ public class MetaDataManager : AssetModificationProcessor
         return AssetDeleteResult.DidNotDelete;
     }
 
-    public static void OnWillCreateAsset(string path) 
+    /* Callback called when creating assets. We check if the created asset is a viable prefab folder, in which
+     * case we create a new metadata container, or if it is a prefab stored in one of these folders, marking it
+     * as an object to load in its container */
+
+    public static void OnWillCreateAsset(string path)
     {
         string folderPath = Path.GetDirectoryName(path).Replace("\\", "/");
         string assetName = Path.GetFileNameWithoutExtension(path);
 
-        if (path.EndsWith(".meta")) 
+        if (path.EndsWith(".meta"))
         {
             path = path.Replace(".meta", "");
 
             if (folderPath == prefabPath && AssetDatabase.IsValidFolder(path))
             {
-                if (!categoryLabels.Contains(assetName)) 
+                if (!categoryLabels.Contains(assetName))
                 {
                     categoryLabels.Add(assetName);
                     categories.Add(assetName, new List<GameObject>());
-                    CategoryData.CreateInstance(assetName, 0, categories[assetName]);
+                    CategoryData d = CategoryData.CreateInstance(assetName, 0, categories[assetName]);
+                    categoriesData.Add(assetName, d);
+                    if (metadataChangedEvent != null) metadataChangedEvent();
                     Debug.Log("Added category: " + assetName);
                 }
             }
@@ -105,9 +119,9 @@ public class MetaDataManager : AssetModificationProcessor
         {
             int i = 0;
             bool found = false;
-            while(i < categoryLabels.Count && !found) 
+            while (i < categoryLabels.Count && !found)
             {
-                if (prefabPath + "/" + categoryLabels[i] == folderPath) 
+                if (prefabPath + "/" + categoryLabels[i] == folderPath)
                 {
                     assetsToLoad.Add(path);
                     found = true;
@@ -118,7 +132,8 @@ public class MetaDataManager : AssetModificationProcessor
         }
     }
 
-    private static void LoadAssets() 
+
+    private static void LoadAssets()
     {
         while (assetsToLoad.Count > 0)
         {
@@ -127,20 +142,21 @@ public class MetaDataManager : AssetModificationProcessor
             GameObject asset = AssetDatabase.LoadAssetAtPath(a, typeof(GameObject)) as GameObject;
             if (asset == null) Debug.Log("Asset is null");
             UpdateMetadata(a, asset);
+            if (metadataChangedEvent != null) metadataChangedEvent();
 
             assetsToLoad.RemoveAt(0);
         }
     }
 
-    private static void DeleteAssets() 
+    private static void DeleteAssets()
     {
         while (assetsToDelete.Count > 0)
         {
             string a = assetsToDelete[0];
 
-            if (Path.GetExtension(a) == "") 
+            if (Path.GetExtension(a) == "")
             {
-                bool deleted = AssetDatabase.DeleteAsset(scriptableObjectPath + "/" + 
+                bool deleted = AssetDatabase.DeleteAsset(scriptableObjectPath + "/" +
                     Path.GetFileNameWithoutExtension(a) + ".asset");
 
                 Debug.Log("Could delete?: " + deleted);
@@ -148,19 +164,21 @@ public class MetaDataManager : AssetModificationProcessor
                 if (deleted)
                 {
                     string folderName = Path.GetFileNameWithoutExtension(a);
-                    categoryLabels.Remove(a);
-                    categories.Remove(a);
-                    Debug.Log("Deleted folder at: " + a);
+                    categories.Remove(folderName);
+                    categoriesData.Remove(folderName);
+                    categoryLabels.Remove(folderName);
+
+                    Debug.Log("Deleted folder at: " + folderName);
                 }
             }
 
-            else 
+            else
             {
                 Debug.Log(a);
 
                 string assetName = Path.GetFileNameWithoutExtension(a);
                 string category = Path.GetDirectoryName(a).Replace("\\", "/").Replace(prefabPath + "/", "");
-                CategoryData categoryData = AssetDatabase.LoadAssetAtPath<CategoryData>(scriptableObjectPath + "/" + category + ".asset");
+                CategoryData categoryData = categoriesData[category];
 
                 if (categoryData != null)
                 {
@@ -169,22 +187,24 @@ public class MetaDataManager : AssetModificationProcessor
                 }
             }
 
+            if (metadataChangedEvent != null) metadataChangedEvent();
             assetsToDelete.RemoveAt(0);
         }
     }
 
-    private static void UpdateMetadata(string assetPath, GameObject prefab) 
+
+    private static void UpdateMetadata(string assetPath, GameObject prefab)
     {
-        string assetName = Path.GetFileNameWithoutExtension(assetPath);
         string category = Path.GetDirectoryName(assetPath).Replace("\\", "/").Replace(prefabPath + "/", "");
 
-        CategoryData categoryData = AssetDatabase.LoadAssetAtPath<CategoryData>(scriptableObjectPath + "/" + category + ".asset");
+        CategoryData categoryData = categoriesData[category];
         categoryData.AddObject(prefab);
+        categories[category].Add(prefab);
     }
 
-    public static List<GameObject> RetrieveCategory(string categoryName) 
+    public static List<GameObject> RetrieveCategory(string categoryName)
     {
-        CategoryData categoryData = AssetDatabase.LoadAssetAtPath<CategoryData>(scriptableObjectPath + "/" + categoryName + ".asset");
+        CategoryData categoryData = categoriesData[categoryName];
         if (categoryData != null)
         {
             return categoryData.LoadObjects();
@@ -193,7 +213,12 @@ public class MetaDataManager : AssetModificationProcessor
         else return null;
     }
 
-    public static Dictionary<string, List<GameObject>> getCategories() 
+    public static List<GameObject> GetCategory(string categoryName)
+    {
+        return categories[categoryName];
+    }
+
+    public static Dictionary<string, List<GameObject>> GetCategories()
     {
         categories = new Dictionary<string, List<GameObject>>();
         foreach (string c in categoryLabels) categories.Add(c, RetrieveCategory(c));

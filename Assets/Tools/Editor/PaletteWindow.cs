@@ -33,18 +33,25 @@ public class PaletteWindow : EditorWindow
         instance = (PaletteWindow)GetWindow(typeof(PaletteWindow));
         instance.titleContent = new GUIContent("Palette");
     }
+
     private void OnEnable()
     {
         InitializeCategories();
+        MetaDataManager.metadataChangedEvent += InitializeCategories;
     }
+
+    private void OnDisable()
+    {
+        MetaDataManager.metadataChangedEvent -= InitializeCategories;
+    }
+
     private void Update()
     {
-        if (selectedCategory != lastCategory) 
+        if (selectedCategory != lastCategory)
         {
-            categories = MetaDataManager.getCategories();
+            categories[selectedCategory] = MetaDataManager.GetCategory(selectedCategory);
             items = categories[selectedCategory];
             lastCategory = selectedCategory;
-            Debug.Log(items.Count);
         }
 
         if (previews[selectedCategory].Count != items.Count)
@@ -55,17 +62,18 @@ public class PaletteWindow : EditorWindow
 
     private void InitializeCategories()
     {
-        categories = MetaDataManager.getCategories();
+        categories = MetaDataManager.GetCategories();
         categoryLabels = categories.Keys.ToListPooled();
 
         previews = new Dictionary<string, Dictionary<string, Texture2D>>();
-        foreach (string category in categories.Keys) 
+        foreach (string category in categories.Keys)
         {
             previews.Add(category, new Dictionary<string, Texture2D>());
         }
 
         selectedCategory = categories.Keys.ToListPooled()[0];
         items = categories[selectedCategory];
+        Repaint();
     }
 
     private void DrawTabs()
@@ -89,8 +97,12 @@ public class PaletteWindow : EditorWindow
             for (int i = 0; i < totalItems; i++)
             {
                 GUIContent guiContent = new GUIContent();
+                Texture2D preview;
                 guiContent.text = items[i].name;
-                guiContent.image = previews[selectedCategory][items[i].name];
+                if (previews[selectedCategory].TryGetValue(items[i].name, out preview))
+                {
+                    guiContent.image = preview;
+                }
                 guiContents.Add(guiContent);
             }
         }
@@ -139,5 +151,3 @@ public class PaletteWindow : EditorWindow
         }
     }
 }
-
-

@@ -16,20 +16,14 @@ public class CategoryData : ScriptableObject
         objectData = new List<ObjectData>();
     }
 
-    public void LoadObjects(List<GameObject> objects) 
-    {
-        foreach (GameObject obj in objects) 
-        {
-            AddObject(obj);
-        }
-    }
-
+    /* Checks if a specified object is already in the metadata list, and if not, 
+     * parses that object to metadata and adds it to the list. */
     public void AddObject(GameObject o)
     {
         int i = 0;
         bool found = false;
 
-        while (i < objectData.Count && !found) 
+        while (i < objectData.Count && !found)
         {
             if (objectData[i].name == o.name) found = true;
             i++;
@@ -45,6 +39,7 @@ public class CategoryData : ScriptableObject
         }
     }
 
+    // Checks for a specified object within the metadata list and erases it
     public void RemoveObject(string objectName)
     {
         int i = 0;
@@ -56,17 +51,27 @@ public class CategoryData : ScriptableObject
             {
                 found = true;
                 objectData.RemoveAt(i);
-                Debug.Log("Removed object " + objectName +  " at category " + this.name);
+                Debug.Log("Removed object " + objectName + " at category " + this.name);
             }
             i++;
         }
     }
 
+    // Iterates through a list of given objects to add them to the metadata list
+    public void LoadMetadata(List<GameObject> objects)
+    {
+        foreach (GameObject obj in objects)
+        {
+            AddObject(obj);
+        }
+    }
+
+    // Returns a list of ready-to-instantiate gameobjects based on current metadata
     public List<GameObject> LoadObjects()
     {
         List<GameObject> l = new List<GameObject>();
 
-        foreach (ObjectData o in objectData) 
+        foreach (ObjectData o in objectData)
         {
             GameObject gameObject = o.prefab[Random.Range(0, o.prefab.Length)];
 
@@ -79,16 +84,17 @@ public class CategoryData : ScriptableObject
         return l;
     }
 
+    // Instantiates the metadata container as a scriptable object of this class
     public static CategoryData CreateInstance(string name, int id, List<GameObject> o)
     {
-        CategoryData scriptableObject = 
+        CategoryData scriptableObject =
             AssetDatabase.LoadAssetAtPath<CategoryData>(scriptableObjectPath + name + ".asset");
 
         if (scriptableObject == null)
         {
             var data = ScriptableObject.CreateInstance<CategoryData>();
             data.Init(name, id);
-            data.LoadObjects(o);
+            data.LoadMetadata(o);
             AssetDatabase.CreateAsset(data, scriptableObjectPath + name + ".asset");
             AssetDatabase.SaveAssets();
             return data;
@@ -98,11 +104,9 @@ public class CategoryData : ScriptableObject
     }
 }
 
-//public class 
-
 [System.Serializable]
-public class ObjectData
-{
+public class ObjectData         // Metadata of the components that form your game objects. 
+{                               // You may need to add or remove components to suit your specific game.
     [Tooltip("Name of Object")]
     public string name;
     [Tooltip("Prefab del object que instanciamos")]
