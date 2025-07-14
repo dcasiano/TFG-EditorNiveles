@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -93,7 +94,7 @@ public static class EditorManager
         //placedItems = (GameObject[][])scriptableObject.objects.Clone();
         int numLayers = scriptableObject.objects.Count;
         placedItems = new GameObject[numLayers][];
-        for(int i = 0; i < numLayers; i++)
+        for (int i = 0; i < numLayers; i++)
         {
             List<GameObject> objectsInLayer = scriptableObject.objects[i].gameObjects;
             placedItems[i] = objectsInLayer.ToArray();
@@ -102,10 +103,50 @@ public static class EditorManager
     }
     private static void OnSceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)
     {
-        string completePath = scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset";
-        scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(completePath);
-        LoadObjectsFromDisk();
-        Debug.Log(scene.name);
+        GameObject s = GameObject.FindFirstObjectByType<Scenary>().gameObject;
+        Scenary scenary = s.GetComponent<Scenary>();
+        Debug.Log(s.name);
+        if (s != null)
+        {
+            int numLayers = s.transform.childCount;
+            int gridSize = scenary.TotalColumns * scenary.TotalRows;
+            Debug.Log(numLayers);
+            placedItems = new GameObject[numLayers][];
+
+            foreach (Transform t in s.GetComponentInChildren<Transform>())
+            {
+                int layer = 0;
+                int.TryParse(t.name.Replace("Layer", ""), out layer);
+                placedItems[layer] = new GameObject[gridSize];
+
+                foreach (Transform child in t.GetComponentsInChildren<Transform>())
+                {
+                    string name = child.name;
+
+                    // Match pattern L0-[x,y][Cube]
+                    Match match = Regex.Match(name, @"\[(\d+),(\d+)\]");
+
+                    if (match.Success)
+                    {
+                        int col = int.Parse(match.Groups[1].Value);
+                        int row = int.Parse(match.Groups[2].Value);
+
+                        int index = row * s.GetComponent<Scenary>().TotalColumns + col;
+                        Debug.Log(index);
+                        Debug.Log(child.name);
+                        placedItems[layer][index] = child.gameObject;
+                    }
+                }
+            }
+        }
+
+        //string completePath = scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset";
+        //Debug.Log(scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset");
+
+        //scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(completePath);
+
+        //LoadObjectsFromDisk();
+        //Debug.Log(scene.name);
     }
     private static void OnSceneSaved(UnityEngine.SceneManagement.Scene scene)
     {
@@ -141,6 +182,7 @@ public static class EditorManager
         }
         DeleteItem(index, selectedLayer);
         placedItems[selectedLayer][index] = newItem;
+        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
     }
     /// <summary>
     /// This method must be called when we erase an item from the grid using this editor tool.
@@ -154,10 +196,11 @@ public static class EditorManager
             Debug.Log("No se pudo borrar el objeto");
             return;
         }
-        if (placedItems[selectedLayer][index] != null) 
+        if (placedItems[selectedLayer][index] != null)
         {
             Object.DestroyImmediate(placedItems[selectedLayer][index]);
             placedItems[selectedLayer][index] = null;
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         }
     }
     private static void ClearObjects()
@@ -190,7 +233,7 @@ public static class EditorManager
             System.Array.Copy(placedItems[i], newPlacedItems[i], gridSize);
         }
         newPlacedItems[newNumLayers - 1] = new GameObject[gridSize];
-        
+
         placedItems = newPlacedItems;
     }
     /// <summary>
@@ -215,3 +258,4 @@ public static class EditorManager
         }
     }
 }
+
