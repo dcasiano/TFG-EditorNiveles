@@ -166,32 +166,35 @@ public class ScenaryInspector : Editor
 
     private void EventHandler() 
     {
+        Event e = Event.current;
+
         HandleUtility.AddDefaultControl(
         GUIUtility.GetControlID(FocusType.Passive));
 
-        Camera camera = SceneView.currentDrawingSceneView.camera;
-        Vector3 mousePosition = new Vector3(Event.current.mousePosition.x, Event.current.mousePosition.y, camera.nearClipPlane);
-        mousePosition.y = Screen.height - mousePosition.y - 36.0f;
-        //Debug.LogFormat("MousePos: {0}", mousePosition);
-        Vector3 worldPos = camera.ScreenToWorldPoint(mousePosition);
-        //Debug.LogFormat("MousePos: {0}", worldPos);
-        Vector3 gridPos = thisTarget.WorldToGridCoordinates(worldPos);
-        int col = (int) gridPos.x;
-        int row = (int) gridPos.y;
+        Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+        Plane gridPlane = new Plane(Vector3.forward, Vector3.zero); 
 
-        Event e = Event.current;
-        switch (currentState)
+        if (gridPlane.Raycast(ray, out float enter))
         {
-            case EditorState.Paint:
-                if (e.button == 0 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)) 
-                    Paint(col, row);
-                break;
-            case EditorState.Erase:
-                if (e.button == 0 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag))
-                    Erase(col, row);
-                break;
-            default:
-                break;
+            Vector3 worldPoint = ray.GetPoint(enter);
+            Vector3 gridPos = thisTarget.WorldToGridCoordinates(worldPoint);
+
+            int col = Mathf.FloorToInt(gridPos.x);
+            int row = Mathf.FloorToInt(gridPos.y);
+
+            switch (currentState)
+            {
+                case EditorState.Paint:
+                    if (e.button == 0 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag))
+                        Paint(col, row);
+                    break;
+                case EditorState.Erase:
+                    if (e.button == 0 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag))
+                        Erase(col, row);
+                    break;
+                default:
+                    break;
+            }
         }
     }
     private void Paint(int col, int row)
