@@ -13,7 +13,7 @@ using UnityEngine.WSA;
 public class MetaDataManager : AssetModificationProcessor
 {
     private static readonly string prefabPath = "Assets/Prefabs/LevelObjects";
-    private static readonly string scriptableObjectPath = "Assets/ScriptableObjects";
+    private static readonly string scriptableObjectPath = "Assets/LevelEditorTool/ScriptableObjects";
 
     private static Dictionary<string, List<GameObject>> categories;
     private static List<string> categoryLabels;

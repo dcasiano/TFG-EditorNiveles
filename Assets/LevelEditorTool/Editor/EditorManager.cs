@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 [InitializeOnLoad]
 public static class EditorManager
@@ -15,14 +16,21 @@ public static class EditorManager
     /// Array which contains the instantiated items on the grid using the editor.
     /// </summary>
     static GameObject[][] placedItems;
-    static readonly string scriptableObjectPath = "Assets/ScriptableObjects/LevelObjects.asset";
+    //static readonly string scriptableObjectPath = "Assets/LevelEditorTool/ScriptableObjects/LevelObjects.asset";
+    static readonly string scriptableObjectPath = "Assets/LevelEditorTool/ScriptableObjects/";
     static EditorManager()
     {
-        LoadScriptableObject();
+        LoadTemporaryScriptableObject();
 
         // Subscribe to the event called when we enter or exit Edit Mode in Unity
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+        // Subscribe to the event called when we open a scene
+        EditorSceneManager.sceneOpened += OnSceneOpened;
+
+        EditorSceneManager.sceneSaved += OnSceneSaved;
     }
+
 
     // Callback method to handle play mode state changes
     private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -40,15 +48,18 @@ public static class EditorManager
             LoadObjectsFromDisk();
         }
     }
-    private static void LoadScriptableObject()
+    private static void LoadTemporaryScriptableObject()
     {
-        scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(scriptableObjectPath);
-        if (scriptableObject == null) CreateScriptableObject();
+        //scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset");
+        string completePath = scriptableObjectPath + "LevelObjects.asset";
+        scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(completePath);
+        if (scriptableObject == null) CreateTemporaryScriptableObject();
     }
-    private static void CreateScriptableObject()
+    private static void CreateTemporaryScriptableObject()
     {
+        string completePath = scriptableObjectPath + "LevelObjects.asset";
         scriptableObject = ScriptableObject.CreateInstance<LevelObjectScriptable>();
-        AssetDatabase.CreateAsset(scriptableObject, scriptableObjectPath);
+        AssetDatabase.CreateAsset(scriptableObject, completePath);
         AssetDatabase.SaveAssets();
     }
     private static void SaveObjectsToDisk()
@@ -89,6 +100,30 @@ public static class EditorManager
         }
         Debug.Log("items cargados");
     }
+    private static void OnSceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)
+    {
+        string completePath = scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset";
+        scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(completePath);
+        LoadObjectsFromDisk();
+        Debug.Log(scene.name);
+    }
+    private static void OnSceneSaved(UnityEngine.SceneManagement.Scene scene)
+    {
+        Debug.Log($"La escena '{scene.name}' se guardo correctamente.");
+        SaveObjectsToDisk();
+        ScriptableObject persistantSO = ScriptableObject.Instantiate<LevelObjectScriptable>(scriptableObject);
+        string completePath = scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset";
+        AssetDatabase.CreateAsset(persistantSO, completePath);
+        AssetDatabase.SaveAssets();
+
+        //if (scriptableObject.name != scene.name + "LevelObjects")
+        //{
+        //    scriptableObject.name = scene.name + "LevelObjects";
+        //    EditorUtility.SetDirty(scriptableObject);
+        //    AssetDatabase.SaveAssets();
+        //}
+    }
+
     /// <summary>
     /// This method must be called when we place a new item on the grid using this editor tool.
     /// </summary>
@@ -128,7 +163,8 @@ public static class EditorManager
     private static void ClearObjects()
     {
         placedItems = null;
-        AssetDatabase.DeleteAsset(scriptableObjectPath);
+        string completePath = scriptableObjectPath + "LevelObjects.asset";
+        AssetDatabase.DeleteAsset(completePath);
     }
     /// <summary>
     /// This method must be called when we create a new level, so
@@ -137,7 +173,7 @@ public static class EditorManager
     public static void OnNewLevel()
     {
         ClearObjects();
-        CreateScriptableObject();
+        CreateTemporaryScriptableObject();
     }
     /// <summary>
     /// This method must be called when we create a new layer using the editor.

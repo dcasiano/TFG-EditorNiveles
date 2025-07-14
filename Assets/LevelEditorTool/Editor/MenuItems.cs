@@ -5,13 +5,13 @@ using UnityEditor;
 
 public static class MenuItems
 {
-    [MenuItem("Tools/Level Creator/New Level")]
+    [MenuItem("Tools/Level Editor/New Level")]
     private static void NewLevel()
     {
         EditorUtils.NewLevel();
     }
 
-    [MenuItem("Tools/Level Creator/Show Palette")]
+    [MenuItem("Tools/Level Editor/Show Palette")]
     public static void ShowPalette()
     {
         PaletteWindow.ShowPalette();

@@ -179,14 +179,15 @@ public class ScenaryInspector : Editor
         int col = (int) gridPos.x;
         int row = (int) gridPos.y;
 
+        Event e = Event.current;
         switch (currentState)
         {
             case EditorState.Paint:
-                if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag)
+                if (e.button == 0 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)) 
                     Paint(col, row);
                 break;
             case EditorState.Erase:
-                if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag)
+                if (e.button == 0 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag))
                     Erase(col, row);
                 break;
             default:

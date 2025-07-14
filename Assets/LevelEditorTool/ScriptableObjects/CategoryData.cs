@@ -6,7 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Categorie Data", menuName = "ScriptableObjects/CategorieData")]
 public class CategoryData : ScriptableObject
 {
-    static readonly string scriptableObjectPath = "Assets/ScriptableObjects/";
+    static readonly string scriptableObjectPath = "Assets/LevelEditorTool/ScriptableObjects/";
 
     public List<ObjectData> objectData;
 
@@ -87,15 +87,16 @@ public class CategoryData : ScriptableObject
     // Instantiates the metadata container as a scriptable object of this class
     public static CategoryData CreateInstance(string name, int id, List<GameObject> o)
     {
+        string completePath = scriptableObjectPath + name + ".asset";
         CategoryData scriptableObject =
-            AssetDatabase.LoadAssetAtPath<CategoryData>(scriptableObjectPath + name + ".asset");
+            AssetDatabase.LoadAssetAtPath<CategoryData>(completePath);
 
         if (scriptableObject == null)
         {
             var data = ScriptableObject.CreateInstance<CategoryData>();
             data.Init(name, id);
             data.LoadMetadata(o);
-            AssetDatabase.CreateAsset(data, scriptableObjectPath + name + ".asset");
+            AssetDatabase.CreateAsset(data, completePath);
             AssetDatabase.SaveAssets();
             return data;
         }
