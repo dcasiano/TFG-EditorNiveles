@@ -12,4 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e7101845bb5ea4abe44b275edf887f, type: 3}
   m_Name: Scenary
   m_EditorClassIdentifier: 
-  objectData: []
+  objectData:
+  - name: Cube
+    prefab:
+    - {fileID: 3950624276398343271, guid: 7839045028bca9f48b1dc15fc7fda148, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+  - name: Sphere
+    prefab:
+    - {fileID: 6994869053589987974, guid: 97cbf1101def23b4fba92038348d22fa, type: 3}
+    rotation: {x: 0, y: 0, z: 0}

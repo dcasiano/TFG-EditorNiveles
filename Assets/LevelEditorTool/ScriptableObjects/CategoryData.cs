@@ -91,7 +91,7 @@ public class CategoryData : ScriptableObject
         CategoryData scriptableObject =
             AssetDatabase.LoadAssetAtPath<CategoryData>(completePath);
 
-        if (scriptableObject.objectData.Count != expectedNumberOfItems)
+        if (scriptableObject != null && scriptableObject.objectData.Count != expectedNumberOfItems)
         {
             scriptableObject = null;
             AssetDatabase.DeleteAsset(completePath);
