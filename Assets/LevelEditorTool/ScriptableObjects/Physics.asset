@@ -12,8 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e7101845bb5ea4abe44b275edf887f, type: 3}
   m_Name: Physics
   m_EditorClassIdentifier: 
-  objectData:
-  - name: PhysicsBlock
-    prefab:
-    - {fileID: 1828746096611998563, guid: 41b2ce7dd11863f40a5c705e2f93a910, type: 3}
-    rotation: {x: 0, y: 0, z: 0}
+  objectData: []

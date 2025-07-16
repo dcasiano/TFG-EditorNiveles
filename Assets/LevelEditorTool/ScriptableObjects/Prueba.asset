@@ -12,12 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e7101845bb5ea4abe44b275edf887f, type: 3}
   m_Name: Prueba
   m_EditorClassIdentifier: 
-  objectData:
-  - name: Capsule
-    prefab:
-    - {fileID: 5613235934516684841, guid: 880327362f71c6b448e0a522b4aa1674, type: 3}
-    rotation: {x: 0, y: 0, z: 0}
-  - name: Cylinder
-    prefab:
-    - {fileID: 3729983027486218968, guid: 82eb041b4d8aefb4cb754a9872256665, type: 3}
-    rotation: {x: 0, y: 0, z: 0}
+  objectData: []
