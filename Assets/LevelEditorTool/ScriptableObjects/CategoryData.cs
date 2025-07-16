@@ -85,11 +85,17 @@ public class CategoryData : ScriptableObject
     }
 
     // Instantiates the metadata container as a scriptable object of this class
-    public static CategoryData CreateInstance(string name, int id, List<GameObject> o)
+    public static CategoryData CreateInstance(string name, int id, List<GameObject> o, int expectedNumberOfItems)
     {
         string completePath = scriptableObjectPath + name + ".asset";
         CategoryData scriptableObject =
             AssetDatabase.LoadAssetAtPath<CategoryData>(completePath);
+
+        if (scriptableObject.objectData.Count != expectedNumberOfItems)
+        {
+            scriptableObject = null;
+            AssetDatabase.DeleteAsset(completePath);
+        }
 
         if (scriptableObject == null)
         {

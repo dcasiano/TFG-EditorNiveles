@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +48,9 @@ public class MetaDataManager : AssetModificationProcessor
 
         foreach (string category in categories.Keys)
         {
-            CategoryData d = CategoryData.CreateInstance(category, 0, categories[category]);
+            Debug.Log(category);
+            foreach (GameObject go in categories[category]) Debug.Log(go.name);
+            CategoryData d = CategoryData.CreateInstance(category, 0, categories[category], categories[category].Count);
             categoriesData.Add(category, d);
         }
     }
@@ -107,7 +109,7 @@ public class MetaDataManager : AssetModificationProcessor
                 {
                     categoryLabels.Add(assetName);
                     categories.Add(assetName, new List<GameObject>());
-                    CategoryData d = CategoryData.CreateInstance(assetName, 0, categories[assetName]);
+                    CategoryData d = CategoryData.CreateInstance(assetName, 0, categories[assetName], categories[assetName].Count);
                     categoriesData.Add(assetName, d);
                     if (metadataChangedEvent != null) metadataChangedEvent();
                     Debug.Log("Added category: " + assetName);
@@ -215,6 +217,7 @@ public class MetaDataManager : AssetModificationProcessor
 
     public static List<GameObject> GetCategory(string categoryName)
     {
+        foreach (GameObject go in categories[categoryName]) Debug.Log(go.name);
         return categories[categoryName];
     }
 
