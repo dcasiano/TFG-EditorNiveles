@@ -37,10 +37,6 @@ public static class EditorUtils
         dirLight.AddComponent<Light>();
         dirLight.GetComponent<Light>().type = LightType.Directional;
 
-        GameObject sceneExporter = new GameObject("SceneExporter");
-        sceneExporter.transform.position = Vector3.zero;
-        sceneExporter.AddComponent<SceneExporter>();
-
         GameObject scenaryGO = new GameObject("Scenary");
         scenaryGO.transform.position = Vector3.zero;
         scenaryGO.AddComponent<Scenary>();

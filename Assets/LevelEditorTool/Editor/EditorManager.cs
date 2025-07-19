@@ -164,7 +164,14 @@ public static class EditorManager
         //    AssetDatabase.SaveAssets();
         //}
     }
-
+    /// <summary>
+    /// Returns the array that contains the items placed on the grid.
+    /// </summary>
+    /// <returns></returns>
+    public static GameObject[][] GetPlacedItems()
+    {
+        return placedItems;
+    }
     /// <summary>
     /// This method must be called when we place a new item on the grid using this editor tool.
     /// </summary>

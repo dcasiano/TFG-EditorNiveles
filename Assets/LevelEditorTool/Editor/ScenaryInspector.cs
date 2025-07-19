@@ -45,11 +45,36 @@ public class ScenaryInspector : Editor
     void Update()
     {
     }
+    
     public override void OnInspectorGUI()
     {
         //base.OnInspectorGUI();
         DrawDefaultInspector();
         DrawLayersGUI();
+
+        if (thisTarget.TileSize != thisTarget.PreviousTileSize)
+        {
+            GameObject[][] placedItems = EditorManager.GetPlacedItems();
+            if (placedItems != null)
+            {
+                int numLayers = placedItems.Length;
+                int gridSize = placedItems[0].Length;
+                for (int i = 0; i < numLayers; i++)
+                {
+                    for (int j = 0; j < gridSize; j++)
+                    {
+                        if (placedItems[i][j] != null)
+                        {
+                            int row = j / thisTarget.TotalColumns;
+                            int col = j % thisTarget.TotalColumns;
+                            placedItems[i][j].transform.position = thisTarget.GridToWorldCoordinates(col, row, i);
+                        }
+
+                    }
+                }
+            }
+            thisTarget.PreviousTileSize = thisTarget.TileSize;
+        }
     }
     private void DrawLayersGUI()
     {
@@ -215,7 +240,7 @@ public class ScenaryInspector : Editor
         Transform layerParent = thisTarget.transform.Find("Layer" + selectedLayer);
         newItem.transform.SetParent(layerParent);
         newItem.name = string.Format("L{0}-[{1},{2}][{3}]", selectedLayer, col, row, newItem.name);
-        newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row);
+        newItem.transform.position = thisTarget.GridToWorldCoordinates(col, row, selectedLayer);
 
         EditorManager.PlaceNewItem(newItem, index, scenarySize, thisTarget.selectedLayerIndex, thisTarget.layers.Count);
     }
