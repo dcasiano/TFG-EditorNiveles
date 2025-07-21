@@ -1,0 +1,16 @@
+{
+    "name": "ucm.editorniveles.Editor",
+    "rootNamespace": "EditorNiveles",
+    "references": [
+        "ucm.editorniveles.runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

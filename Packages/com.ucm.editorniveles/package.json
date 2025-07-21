@@ -1,0 +1,15 @@
+{
+  "name": "com.ucm.editorniveles",
+  "version": "1.0.0",
+  "displayName": "Editor de Niveles",
+  "description": "Add-on para editar niveles de videojuegos 2D",
+  "unity": "2021.3",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "author": {
+    "name": "David Casiano & Sol Flora Lopez",
+    "email": "solflora@ucm.es",
+    "url": "https://www.unity3d.com"
+  }
+}
