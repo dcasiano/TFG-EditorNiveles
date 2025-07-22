@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using System.Diagnostics;
+using System;
 
 namespace EditorNiveles
 {
@@ -112,16 +115,16 @@ namespace EditorNiveles
                 GameObject s = scenary.gameObject;
                 Debug.Log(s.name);
 
-                int numLayers = s.transform.childCount;
+                int numLayers = scenary.layers.Count;
                 int gridSize = scenary.TotalColumns * scenary.TotalRows;
-                //Debug.Log(numLayers);
+                Debug.Log(numLayers);
                 placedItems = new GameObject[numLayers][];
+                for (int i = 0; i < numLayers; i++) placedItems[i] = new GameObject[gridSize];
 
                 foreach (Transform t in s.GetComponentInChildren<Transform>())
                 {
                     int layer = 0;
                     int.TryParse(t.name.Replace("Layer", ""), out layer);
-                    placedItems[layer] = new GameObject[gridSize];
 
                     foreach (Transform child in t.GetComponentsInChildren<Transform>())
                     {
@@ -270,4 +273,3 @@ namespace EditorNiveles
         }
     }
 }
-
