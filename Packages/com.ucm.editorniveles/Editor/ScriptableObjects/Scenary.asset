@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: Scenary
   m_EditorClassIdentifier: 
   objectData:
-  - name: Cube
+  - name: SolidTile
     prefab:
-    - {fileID: 3950624276398343271, guid: 6f51e1e4c275c5b4caf2886baaff0dd8, type: 3}
+    - {fileID: 1990640663397914, guid: 7c76c3fe1c360e94bb75fb8c3b4295e6, type: 3}
     rotation: {x: 0, y: 0, z: 0}
-  - name: Sphere
+    visibility: 0
+  - name: UpHillTile
     prefab:
-    - {fileID: 6994869053589987974, guid: 41e930879fee09e4cbe6c6479a66e7b4, type: 3}
+    - {fileID: 1796332261496060, guid: c2d27ad86dbd1a64a8930fc13fd032a8, type: 3}
     rotation: {x: 0, y: 0, z: 0}
+    visibility: 0

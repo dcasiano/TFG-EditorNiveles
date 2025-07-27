@@ -41,7 +41,7 @@ namespace EditorNiveles
         }
 
         // Creates our metadata containers based on the existing prefab folders 
-        private static void InitializeCategories()
+        public static void InitializeCategories()
         {
             categories = EditorUtils.GetFolders(prefabPath);
             categoryLabels = categories.Keys.ToList();
@@ -59,10 +59,6 @@ namespace EditorNiveles
         public static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions options)
         {
             string folderPath = Path.GetDirectoryName(path).Replace("\\", "/");
-
-            Debug.Log(path);
-            Debug.Log(AssetDatabase.IsValidFolder(path));
-
             if (folderPath == prefabPath && AssetDatabase.IsValidFolder(path))
             {
                 assetsToDelete.Add(path);
@@ -111,7 +107,6 @@ namespace EditorNiveles
                         CategoryData d = CategoryData.CreateInstance(assetName, 0, categories[assetName], categories[assetName].Count);
                         categoriesData.Add(assetName, d);
                         if (metadataChangedEvent != null) metadataChangedEvent();
-                        Debug.Log("Added category: " + assetName);
                     }
                 }
             }
@@ -141,8 +136,7 @@ namespace EditorNiveles
                 string a = assetsToLoad[0];
 
                 GameObject asset = AssetDatabase.LoadAssetAtPath(a, typeof(GameObject)) as GameObject;
-                if (asset == null) Debug.Log("Asset is null");
-                UpdateMetadata(a, asset);
+                if (asset != null )UpdateMetadata(a, asset);
                 if (metadataChangedEvent != null) metadataChangedEvent();
 
                 assetsToLoad.RemoveAt(0);
@@ -160,30 +154,23 @@ namespace EditorNiveles
                     bool deleted = AssetDatabase.DeleteAsset(scriptableObjectPath + "/" +
                         Path.GetFileNameWithoutExtension(a) + ".asset");
 
-                    Debug.Log("Could delete?: " + deleted);
-
                     if (deleted)
                     {
                         string folderName = Path.GetFileNameWithoutExtension(a);
                         categories.Remove(folderName);
                         categoriesData.Remove(folderName);
                         categoryLabels.Remove(folderName);
-
-                        Debug.Log("Deleted folder at: " + folderName);
                     }
                 }
 
                 else
                 {
-                    Debug.Log(a);
-
                     string assetName = Path.GetFileNameWithoutExtension(a);
                     string category = Path.GetDirectoryName(a).Replace("\\", "/").Replace(prefabPath + "/", "");
                     CategoryData categoryData = categoriesData[category];
 
                     if (categoryData != null)
                     {
-                        Debug.Log(categoryData.name);
                         categoryData.RemoveObject(assetName);
                     }
                 }
@@ -216,7 +203,6 @@ namespace EditorNiveles
 
         public static List<GameObject> GetCategory(string categoryName)
         {
-            foreach (GameObject go in categories[categoryName]) Debug.Log(go.name);
             return categories[categoryName];
         }
 

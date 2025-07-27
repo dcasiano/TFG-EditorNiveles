@@ -35,6 +35,7 @@ public class CategoryData : ScriptableObject
             data.name = o.name;
             data.prefab = new GameObject[1];
             data.prefab[0] = o;
+            data.visibility = false;
             objectData.Add(data);
         }
     }
@@ -51,7 +52,6 @@ public class CategoryData : ScriptableObject
             {
                 found = true;
                 objectData.RemoveAt(i);
-                Debug.Log("Removed object " + objectName + " at category " + this.name);
             }
             i++;
         }
@@ -77,6 +77,9 @@ public class CategoryData : ScriptableObject
 
             gameObject.name = o.name;
             gameObject.transform.rotation = Quaternion.Euler(o.rotation);
+            MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+
+            if (meshRenderer != null) meshRenderer.enabled = o.visibility;
 
             l.Add(gameObject);
         }
@@ -119,5 +122,7 @@ public class ObjectData         // Metadata of the components that form your gam
     [Tooltip("Prefab del object que instanciamos")]
     public GameObject[] prefab;
     [Tooltip("Object Rotation")]
-    public Vector3 rotation;
+    public Vector3 rotation;    
+    [Tooltip("Object Visibility")]
+    public bool visibility;
 }

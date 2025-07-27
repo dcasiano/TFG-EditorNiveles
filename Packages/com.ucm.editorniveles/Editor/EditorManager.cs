@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using static UnityEditor.Experimental.GraphView.GraphView;
-using System.Diagnostics;
-using System;
 
 namespace EditorNiveles
 {
@@ -119,7 +117,7 @@ namespace EditorNiveles
                 int gridSize = scenary.TotalColumns * scenary.TotalRows;
                 Debug.Log(numLayers);
                 placedItems = new GameObject[numLayers][];
-                for (int i = 0; i < numLayers; i++) placedItems[i] = new GameObject[gridSize];
+                for(int i = 0; i < numLayers; i++) placedItems[i] = new GameObject[gridSize];
 
                 foreach (Transform t in s.GetComponentInChildren<Transform>())
                 {
@@ -273,3 +271,4 @@ namespace EditorNiveles
         }
     }
 }
+

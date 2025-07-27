@@ -61,6 +61,8 @@ namespace EditorNiveles
                 {
                     int numLayers = placedItems.Length;
                     int gridSize = placedItems[0].Length;
+                    //Debug.Log("Numero Layers: " + numLayers);
+
                     for (int i = 0; i < numLayers; i++)
                     {
                         for (int j = 0; j < gridSize; j++)

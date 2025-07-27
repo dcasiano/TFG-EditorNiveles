@@ -26,6 +26,7 @@ namespace EditorNiveles
         private Vector2 scrollPosition;
         private const float buttonWidth = 80;
         private const float buttonHeight = 90;
+        private Texture2D defaultPreview;
 
         public delegate void itemSelectedDelegate(GameObject item);
         public static event itemSelectedDelegate ItemSelectedEvent;
@@ -39,6 +40,7 @@ namespace EditorNiveles
         private void OnEnable()
         {
             InitializeCategories();
+            LoadTexture();
             MetaDataManager.metadataChangedEvent += InitializeCategories;
         }
 
@@ -75,7 +77,13 @@ namespace EditorNiveles
 
             selectedCategory =  categories.Keys.ToList()[0];
             items = categories[selectedCategory];
+            GeneratePreviews();
             Repaint();
+        }
+
+        private void LoadTexture() 
+        {
+            defaultPreview = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.ucm.editorniveles/Assets/DefaultPreview.png");
         }
 
         private void DrawTabs()
@@ -85,10 +93,36 @@ namespace EditorNiveles
             selectedCategory = categoryLabels[index]; //[index];
         }
 
+        private void DrawRefreshButton() 
+        {
+            float padding = 10f;
+            float buttonWidth = 100f;
+            float buttonHeight = 30f;
+
+            Rect buttonRect = new Rect(
+                position.width - buttonWidth - padding,
+                position.height - buttonHeight - padding,
+                buttonWidth,
+                buttonHeight
+            );
+
+            // Make sure layout space is reserved
+            GUILayout.Space(buttonHeight + padding * 2);
+
+            // Use GUI instead of GUILayout for absolute positioning
+            if (GUI.Button(buttonRect, "Refresh"))
+            {
+                MetaDataManager.InitializeCategories();
+                InitializeCategories();
+                GeneratePreviews();
+            }
+        }
+
         private void OnGUI()
         {
             DrawTabs();
             DrawScroll();
+            DrawRefreshButton();
         }
         private GUIContent[] GetGUIContentsFromItems()
         {
@@ -124,7 +158,6 @@ namespace EditorNiveles
             if (index != -1)
             {
                 GameObject selectedItem = items[index];
-                //Debug.Log("Selected Item is: " + selectedItem.name);
                 if (ItemSelectedEvent != null) ItemSelectedEvent(selectedItem);
             }
         }
@@ -148,7 +181,9 @@ namespace EditorNiveles
                     if (preview != null)
                     {
                         previews[selectedCategory].Add(item.name, preview);
-                    }
+                    }   
+
+                    else if(defaultPreview != null) previews[selectedCategory].Add(item.name, defaultPreview);
                 }
             }
         }

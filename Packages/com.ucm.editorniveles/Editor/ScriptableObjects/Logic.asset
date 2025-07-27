@@ -12,4 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a4bc577ea5e20a40b13c1c0dbbbdddb, type: 3}
   m_Name: Logic
   m_EditorClassIdentifier: 
-  objectData: []
+  objectData:
+  - name: SalidaAditiva
+    prefab:
+    - {fileID: 1825411302765548, guid: 51cba4358450c8a43a4bba641c938bd5, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+    visibility: 0
+  - name: Seed
+    prefab:
+    - {fileID: 3556090277688576018, guid: 10e79b6f216ea6b4b803859313e280da, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+    visibility: 0
+  - name: SolidTileBoundary
+    prefab:
+    - {fileID: 1990640663397914, guid: 87806ce13abe62b4281ce41fe80c3f68, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+    visibility: 0
+  - name: SpawnPoint
+    prefab:
+    - {fileID: 1511429156611262, guid: ae289f07fd08cb64c8573e2fa020c27d, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+    visibility: 0
+  - name: TutorialPoint
+    prefab:
+    - {fileID: 3564951726989394012, guid: 7a08bde1f474c7342931df1969456a92, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+    visibility: 0
+  - name: UpHillTileBoundary
+    prefab:
+    - {fileID: 1796332261496060, guid: a7ebea4725e9d6645be328b48c1bd362, type: 3}
+    rotation: {x: 0, y: 0, z: 0}
+    visibility: 0

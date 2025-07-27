@@ -71,6 +71,7 @@ namespace EditorNiveles
             {
                 assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
                 asset = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+                //Debug.Log("Read Asset: " + asset.name + " at " + path);
                 if (asset != null) assetList.Add(asset);
             }
             return assetList;
