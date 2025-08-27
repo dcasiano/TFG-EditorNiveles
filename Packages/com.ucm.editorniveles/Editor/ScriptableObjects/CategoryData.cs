@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Categorie Data", menuName = "ScriptableObjects/CategorieData")]
+
 public class CategoryData : ScriptableObject
 {
     static readonly string scriptableObjectPath = "Packages/com.ucm.editorniveles/Editor/ScriptableObjects/";
@@ -73,7 +73,7 @@ public class CategoryData : ScriptableObject
 
         foreach (ObjectData o in objectData)
         {
-            GameObject gameObject = o.prefab[Random.Range(0, o.prefab.Length)];
+            GameObject gameObject = o.prefab[0];
 
             gameObject.name = o.name;
             gameObject.transform.rotation = Quaternion.Euler(o.rotation);
@@ -85,6 +85,25 @@ public class CategoryData : ScriptableObject
         }
 
         return l;
+    }
+
+    public GameObject GetObjectVariant(string name) 
+    {
+        int i = 0;
+        bool found = false;
+
+        while (i < objectData.Count && !found)
+        {
+            if (objectData[i].name == name)
+            {
+                found = true;
+                return objectData[i].prefab[Random.Range(0, objectData[i].prefab.Length)];
+            }
+
+            i++;
+        }
+
+        return null;
     }
 
     // Instantiates the metadata container as a scriptable object of this class

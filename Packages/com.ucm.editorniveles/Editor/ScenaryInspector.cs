@@ -11,6 +11,7 @@ namespace EditorNiveles
     {
         Scenary thisTarget;
         GameObject itemSelected;
+        string currentCategory;
         string newLayerName;
         private void OnEnable()
         {
@@ -240,7 +241,7 @@ namespace EditorNiveles
                 layerObj.transform.SetParent(thisTarget.transform);
                 layerObj.transform.localPosition = Vector3.zero;
             }
-            GameObject newItem = PrefabUtility.InstantiatePrefab(itemSelected) as GameObject;
+            GameObject newItem = PrefabUtility.InstantiatePrefab(MetaDataManager.GetObjectVariant(currentCategory, itemSelected.name)) as GameObject;
             Transform layerParent = thisTarget.transform.Find("Layer" + selectedLayer);
             newItem.transform.SetParent(layerParent);
             newItem.name = string.Format("L{0}-[{1},{2}][{3}]", selectedLayer, col, row, newItem.name);
@@ -257,9 +258,10 @@ namespace EditorNiveles
             EditorManager.DeleteItem(index, thisTarget.selectedLayerIndex);
         }
 
-        private void UpdateCurrentPieceInstance(GameObject item)
+        private void UpdateCurrentPieceInstance(GameObject item, string category)
         {
             itemSelected = item;
+            currentCategory = category;
         }
     }
 }

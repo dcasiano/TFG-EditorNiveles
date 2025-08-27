@@ -213,5 +213,11 @@ namespace EditorNiveles
 
             return categories;
         }
+
+        public static GameObject GetObjectVariant(string categoryName, string objectName)
+        {
+
+            return categoriesData[categoryName].GetObjectVariant(objectName);
+        }
     }
 }

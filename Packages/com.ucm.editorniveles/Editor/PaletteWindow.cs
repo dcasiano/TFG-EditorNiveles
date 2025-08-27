@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 
 namespace EditorNiveles
 {
+    [ExecuteInEditMode]
     public class PaletteWindow : EditorWindow
     {
         public static PaletteWindow instance;
@@ -28,7 +29,9 @@ namespace EditorNiveles
         private const float buttonHeight = 90;
         private Texture2D defaultPreview;
 
-        public delegate void itemSelectedDelegate(GameObject item);
+        private bool hasToGeneratePreviews = false;
+
+        public delegate void itemSelectedDelegate(GameObject item, string category);
         public static event itemSelectedDelegate ItemSelectedEvent;
 
         public static void ShowPalette()
@@ -58,9 +61,11 @@ namespace EditorNiveles
                 lastCategory = selectedCategory;
             }
 
-            if (previews[selectedCategory].Count != items.Count)
+            if ((previews[selectedCategory].Count != items.Count || hasToGeneratePreviews) && !Application.isPlaying)
             {
                 GeneratePreviews();
+                Repaint();
+                hasToGeneratePreviews = false;
             }
         }
 
@@ -77,8 +82,7 @@ namespace EditorNiveles
 
             selectedCategory =  categories.Keys.ToList()[0];
             items = categories[selectedCategory];
-            GeneratePreviews();
-            Repaint();
+            hasToGeneratePreviews = true;
         }
 
         private void LoadTexture() 
@@ -110,7 +114,7 @@ namespace EditorNiveles
             GUILayout.Space(buttonHeight + padding * 2);
 
             // Use GUI instead of GUILayout for absolute positioning
-            if (GUI.Button(buttonRect, "Refresh"))
+            if (GUI.Button(buttonRect, "Refresh") && !Application.isPlaying)
             {
                 MetaDataManager.InitializeCategories();
                 InitializeCategories();
@@ -158,7 +162,7 @@ namespace EditorNiveles
             if (index != -1)
             {
                 GameObject selectedItem = items[index];
-                if (ItemSelectedEvent != null) ItemSelectedEvent(selectedItem);
+                if (ItemSelectedEvent != null) ItemSelectedEvent(selectedItem, selectedCategory);
             }
         }
         private void DrawScroll()
