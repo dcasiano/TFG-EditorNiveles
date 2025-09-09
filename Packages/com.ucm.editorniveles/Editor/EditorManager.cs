@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace EditorNiveles
 {
@@ -20,7 +19,6 @@ namespace EditorNiveles
         /// Array which contains the instantiated items on the grid using the editor.
         /// </summary>
         static GameObject[][] placedItems;
-        //static readonly string scriptableObjectPath = "Assets/LevelEditorTool/ScriptableObjects/LevelObjects.asset";
         static readonly string scriptableObjectPath = "Packages/com.ucm.editorniveles/Editor/ScriptableObjects/";
         static EditorManager()
         {
@@ -42,19 +40,16 @@ namespace EditorNiveles
             // Check if the state is EnteredPlayMode
             if (state == PlayModeStateChange.ExitingEditMode)
             {
-                Debug.Log("Saliendo Edit Mode");
                 SaveObjectsToDisk();
             }
 
             else if (state == PlayModeStateChange.EnteredEditMode)
             {
-                Debug.Log("Entrado Edit Mode");
                 LoadObjectsFromDisk();
             }
         }
         private static void LoadTemporaryScriptableObject()
         {
-            //scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset");
             string completePath = scriptableObjectPath + "LevelObjects.asset";
             scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(completePath);
             if (scriptableObject == null) CreateTemporaryScriptableObject();
@@ -78,7 +73,7 @@ namespace EditorNiveles
                 Debug.Log("No se puede guardar un array de objetos vacio");
                 return;
             }
-            //scriptableObject.objects = (GameObject[][])placedItems.Clone();
+            
             scriptableObject.objects = new List<GameObjectsGroup>();
             int numLayers = placedItems.Length;
             for (int i = 0; i < numLayers; i++)
@@ -89,12 +84,11 @@ namespace EditorNiveles
             }
             EditorUtility.SetDirty(scriptableObject);
             AssetDatabase.SaveAssets();
-            Debug.Log("items guardados");
         }
         private static void LoadObjectsFromDisk()
         {
             if (scriptableObject == null || scriptableObject.objects == null) return;
-            //placedItems = (GameObject[][])scriptableObject.objects.Clone();
+            
             int numLayers = scriptableObject.objects.Count;
             placedItems = new GameObject[numLayers][];
             for (int i = 0; i < numLayers; i++)
@@ -102,7 +96,6 @@ namespace EditorNiveles
                 List<GameObject> objectsInLayer = scriptableObject.objects[i].gameObjects;
                 placedItems[i] = objectsInLayer.ToArray();
             }
-            Debug.Log("items cargados");
         }
         private static void OnSceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)
         {
@@ -137,37 +130,19 @@ namespace EditorNiveles
                             int row = int.Parse(match.Groups[2].Value);
 
                             int index = row * s.GetComponent<Scenary>().TotalColumns + col;
-                            //Debug.Log(index);
-                            //Debug.Log(child.name);
                             placedItems[layer][index] = child.gameObject;
                         }
                     }
                 }
             }
-
-            //string completePath = scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset";
-            //Debug.Log(scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset");
-
-            //scriptableObject = AssetDatabase.LoadAssetAtPath<LevelObjectScriptable>(completePath);
-
-            //LoadObjectsFromDisk();
-            //Debug.Log(scene.name);
         }
         private static void OnSceneSaved(UnityEngine.SceneManagement.Scene scene)
         {
-            Debug.Log($"La escena '{scene.name}' se guardo correctamente.");
             SaveObjectsToDisk();
             ScriptableObject persistantSO = ScriptableObject.Instantiate<LevelObjectScriptable>(scriptableObject);
             string completePath = scriptableObjectPath + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "LevelObjects.asset";
             AssetDatabase.CreateAsset(persistantSO, completePath);
             AssetDatabase.SaveAssets();
-
-            //if (scriptableObject.name != scene.name + "LevelObjects")
-            //{
-            //    scriptableObject.name = scene.name + "LevelObjects";
-            //    EditorUtility.SetDirty(scriptableObject);
-            //    AssetDatabase.SaveAssets();
-            //}
         }
         /// <summary>
         /// Returns the array that contains the items placed on the grid.
@@ -268,6 +243,51 @@ namespace EditorNiveles
                 if (placedItems[selectedLayer][i] != null)
                     placedItems[selectedLayer][i].transform.position += new Vector3(0, 0, depthModified);
             }
+        }
+        /// <summary>
+        /// This method must be called when a layer is removed
+        /// </summary>
+        /// <param name="selectedLayer"> The index of the layer we want to remove </param>
+        public static void OnLayerRemoved(int selectedLayer)
+        {
+            if (placedItems == null) return;
+            if (placedItems[selectedLayer] == null)
+            {
+                Debug.Log("No existe la capa a eliminar");
+                return;
+            }
+            int gridSize = placedItems[0].Length;
+            int newNumLayers = placedItems.Length - 1;
+
+            GameObject[][] newPlacedItems = new GameObject[newNumLayers][];
+            for (int i = 0; i < newNumLayers; i++)
+            {
+                if (i == selectedLayer) continue;
+                newPlacedItems[i] = new GameObject[gridSize];
+                System.Array.Copy(placedItems[i], newPlacedItems[i], gridSize);
+            }
+
+            // Delete every objetc on the layer
+            for (int i = 0; i < gridSize; i++)
+            {
+                if (placedItems[selectedLayer][i] != null)
+                {
+                    Object.DestroyImmediate(placedItems[selectedLayer][i]);
+                    placedItems[selectedLayer][i] = null;
+                }
+            }
+
+            Scenary scenary = GameObject.FindFirstObjectByType<Scenary>();
+            GameObject scenGO = scenary.gameObject;
+            if (scenGO.transform.Find("Layer" + selectedLayer) == null)
+            {
+                Object.DestroyImmediate(scenGO.transform.Find("Layer" + selectedLayer).gameObject);
+            }
+
+            placedItems = newPlacedItems;
+
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            
         }
     }
 }

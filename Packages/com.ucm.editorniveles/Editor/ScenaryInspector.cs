@@ -37,24 +37,19 @@ namespace EditorNiveles
             Erase
         }
         private EditorState currentState;
-        // Start is called before the first frame update
+        
         void Start()
         {
             currentState = EditorState.View;
             itemSelected = null;
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-        }
-
         public override void OnInspectorGUI()
         {
-            //base.OnInspectorGUI();
             DrawDefaultInspector();
             DrawLayersGUI();
 
+            // Place items on their new position when tile resized
             if (thisTarget.TileSize != thisTarget.PreviousTileSize)
             {
                 GameObject[][] placedItems = EditorManager.GetPlacedItems();
@@ -62,7 +57,6 @@ namespace EditorNiveles
                 {
                     int numLayers = placedItems.Length;
                     int gridSize = placedItems[0].Length;
-                    //Debug.Log("Numero Layers: " + numLayers);
 
                     for (int i = 0; i < numLayers; i++)
                     {
@@ -93,7 +87,6 @@ namespace EditorNiveles
                 if (i == thisTarget.selectedLayerIndex)
                 {
                     buttonStyle.normal.textColor = Color.white;
-                    //buttonStyle.normal.background = MakeTex(1, 1, new Color(0.4f, 0.6f, 1.0f)); 
                     GUI.backgroundColor = new Color(0.4f, 0.6f, 1.0f);
                 }
 
@@ -137,6 +130,21 @@ namespace EditorNiveles
                 }
             }
 
+            EditorGUILayout.Space();
+            string removeButtonText = "Remove " + thisTarget.layers[thisTarget.selectedLayerIndex] + " Layer";
+            Color defaultColor2 = GUI.backgroundColor;
+            GUI.backgroundColor = Color.red;
+            if (GUILayout.Button(removeButtonText))
+            {
+                thisTarget.layers.RemoveAt(thisTarget.selectedLayerIndex);
+                thisTarget.layersDepth.RemoveAt(thisTarget.selectedLayerIndex);
+                EditorManager.OnLayerRemoved(thisTarget.selectedLayerIndex);
+                
+                thisTarget.selectedLayerIndex--;
+                if (thisTarget.selectedLayerIndex < 0) thisTarget.selectedLayerIndex = 0;
+            }
+            GUI.backgroundColor = defaultColor2;
+
             // Guardar los cambios
             if (GUI.changed)
             {
@@ -144,16 +152,6 @@ namespace EditorNiveles
             }
 
         }
-        //private Texture2D MakeTex(int width, int height, Color col)
-        //{
-        //    Color[] pix = new Color[width * height];
-        //    for (int i = 0; i < pix.Length; i++) pix[i] = col;
-
-        //    Texture2D result = new Texture2D(width, height);
-        //    result.SetPixels(pix);
-        //    result.Apply();
-        //    return result;
-        //}
         private void OnSceneGUI()
         {
             DrawStateButtons();
