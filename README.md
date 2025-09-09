@@ -13,7 +13,7 @@ Ismael Sagredo Olivenza
 
 ## Cómo utilizarlo
 
-El repositorio contiene el proyecto de Unity completo donde se desarrolló el editor de niveles. No obstante, si quieres utilizar el editor en tu proyecto, solo necesitas descargar el archivo comprimido com.ucm.editorniveles.zip
+El repositorio contiene el proyecto de Unity completo donde se desarrolló el editor de niveles. No obstante, si quieres utilizar el editor en tu proyecto, solo necesitas descargar el archivo comprimido EditorNiveles.zip
 
 Una vez descomprimido, debes moverlo a la carpeta Packages de tu proyecto de Unity. Tras esto, aparecerá una nueva seccción en la parte superior del editor de Unity llamada Level Editor. Allí, encontrarás el botón New Level, que creará una nueva escena con todo lo necesario para empezar a editar el nivel. En el menú Level Editor también encontrarás el botón para mostrar la paleta.
 
