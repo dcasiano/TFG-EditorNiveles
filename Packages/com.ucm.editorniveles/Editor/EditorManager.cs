@@ -97,7 +97,8 @@ namespace EditorNiveles
                 placedItems[i] = objectsInLayer.ToArray();
             }
         }
-        private static void OnSceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)
+
+        private static void LoadObjectsOnLoad() 
         {
             Scenary scenary = GameObject.FindFirstObjectByType<Scenary>();
 
@@ -110,7 +111,7 @@ namespace EditorNiveles
                 int gridSize = scenary.TotalColumns * scenary.TotalRows;
                 Debug.Log(numLayers);
                 placedItems = new GameObject[numLayers][];
-                for(int i = 0; i < numLayers; i++) placedItems[i] = new GameObject[gridSize];
+                for (int i = 0; i < numLayers; i++) placedItems[i] = new GameObject[gridSize];
 
                 foreach (Transform t in s.GetComponentInChildren<Transform>())
                 {
@@ -136,6 +137,28 @@ namespace EditorNiveles
                 }
             }
         }
+
+        private static void OnSceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)
+        {
+            EditorApplication.update += WaitForSceneObjects;
+        }
+
+        [InitializeOnLoadMethod]
+        private static void OnEditorOpened() 
+        {
+            EditorApplication.update += WaitForSceneObjects;
+        }
+
+        private static void WaitForSceneObjects()
+        {
+            var scenary = GameObject.FindFirstObjectByType<Scenary>();
+            if (scenary != null)
+            {
+                EditorApplication.update -= WaitForSceneObjects;
+                LoadObjectsOnLoad();
+            }
+        }
+
         private static void OnSceneSaved(UnityEngine.SceneManagement.Scene scene)
         {
             SaveObjectsToDisk();
@@ -279,7 +302,7 @@ namespace EditorNiveles
 
             Scenary scenary = GameObject.FindFirstObjectByType<Scenary>();
             GameObject scenGO = scenary.gameObject;
-            if (scenGO.transform.Find("Layer" + selectedLayer) == null)
+            if (scenGO.transform.Find("Layer" + selectedLayer) != null)
             {
                 Object.DestroyImmediate(scenGO.transform.Find("Layer" + selectedLayer).gameObject);
             }

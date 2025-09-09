@@ -13,6 +13,8 @@ public class Scenary : MonoBehaviour
     [SerializeField]
     private float tileSize = 1.0f;
     private float previousTileSize;
+    [SerializeField]
+    private bool showGrid = true;
 
     private readonly Color normalColor = Color.grey;
     private readonly Color selectedColor = Color.Lerp(Color.cyan, Color.blue, 0.5f);
@@ -72,11 +74,15 @@ public class Scenary : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+
         Color prevColor = Gizmos.color;
 
-        Gizmos.color = normalColor;
-        GridGizmo(totalColumns, totalRows);
-        GridFrameGizmo(totalColumns, totalRows);
+        if (showGrid)
+        {
+            Gizmos.color = normalColor;
+            GridGizmo(totalColumns, totalRows);
+            GridFrameGizmo(totalColumns, totalRows);
+        }
 
         Gizmos.color = prevColor;
     }
@@ -84,10 +90,14 @@ public class Scenary : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Color oldColor = Gizmos.color;
-        Gizmos.color = selectedFrameColor;
-        GridFrameGizmo(totalColumns, totalRows);
-        Gizmos.color = selectedColor;
-        GridGizmo(totalColumns, totalRows);
+
+        if (showGrid) 
+        {
+            Gizmos.color = selectedFrameColor;
+            GridFrameGizmo(totalColumns, totalRows);
+            Gizmos.color = selectedColor;
+            GridGizmo(totalColumns, totalRows);
+        }
 
         Gizmos.color = oldColor;
     }

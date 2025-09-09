@@ -13,10 +13,6 @@ namespace EditorNiveles
     {
         public static PaletteWindow instance;
 
-        // TODO: agrupar los items en categorias. En el editor se crearan tantas 
-        // carpetas como categorias de items haya y se guardara cada item en su 
-        // carpeta correspondiente. Maybe agruparlos aqui con un diccionario de listas??
-
         private Dictionary<string, List<GameObject>> categories;
         private List<string> categoryLabels;
         private string selectedCategory;
@@ -69,9 +65,10 @@ namespace EditorNiveles
             }
         }
 
+        // Initializes the categories dictionary from the information stored at MetaDataManager
         private void InitializeCategories()
         {
-            categories = MetaDataManager.GetCategories();
+            categories = MetaDataManager.RetrieveCategories();
             categoryLabels = categories.Keys.ToList();
 
             previews = new Dictionary<string, Dictionary<string, Texture2D>>();
@@ -94,7 +91,7 @@ namespace EditorNiveles
         {
             int index = categories.Keys.ToList().IndexOf(selectedCategory);
             index = GUILayout.Toolbar(index, categoryLabels.ToArray());
-            selectedCategory = categoryLabels[index]; //[index];
+            selectedCategory = categoryLabels[index];
         }
 
         private void DrawRefreshButton() 
@@ -110,10 +107,8 @@ namespace EditorNiveles
                 buttonHeight
             );
 
-            // Make sure layout space is reserved
             GUILayout.Space(buttonHeight + padding * 2);
 
-            // Use GUI instead of GUILayout for absolute positioning
             if (GUI.Button(buttonRect, "Refresh") && !Application.isPlaying)
             {
                 MetaDataManager.InitializeCategories();
@@ -165,6 +160,7 @@ namespace EditorNiveles
                 if (ItemSelectedEvent != null) ItemSelectedEvent(selectedItem, selectedCategory);
             }
         }
+
         private void DrawScroll()
         {
             int rowCapacity = Mathf.FloorToInt(position.width / (buttonWidth));
@@ -175,6 +171,8 @@ namespace EditorNiveles
             GetSelectedItem(selectionGridIndex);
             GUILayout.EndScrollView();
         }
+
+        // Generates the textures needed for showing the objects in the palette
         private void GeneratePreviews()
         {
             foreach (GameObject item in items)

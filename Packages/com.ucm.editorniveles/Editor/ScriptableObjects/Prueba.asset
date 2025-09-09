@@ -17,7 +17,11 @@ MonoBehaviour:
     prefab:
     - {fileID: 5613235934516684841, guid: 9312ad7aef19f01438a64fd92c2c4571, type: 3}
     rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    visibility: 1
   - name: Cylinder
     prefab:
     - {fileID: 3729983027486218968, guid: e5f9df618b71b1d49ad60bbc88156f69, type: 3}
     rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    visibility: 1

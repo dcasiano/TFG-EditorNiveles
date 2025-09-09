@@ -7,13 +7,13 @@ namespace EditorNiveles
 {
     public static class MenuItems
     {
-        [MenuItem("Tools/Level Editor/New Level")]
+        [MenuItem("Level Editor/New Level")]
         private static void NewLevel()
         {
             EditorUtils.NewLevel();
         }
 
-        [MenuItem("Tools/Level Editor/Show Palette")]
+        [MenuItem("Level Editor/Show Palette")]
         public static void ShowPalette()
         {
             PaletteWindow.ShowPalette();

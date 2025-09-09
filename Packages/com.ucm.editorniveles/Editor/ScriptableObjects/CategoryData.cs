@@ -35,7 +35,7 @@ public class CategoryData : ScriptableObject
             data.name = o.name;
             data.prefab = new GameObject[1];
             data.prefab[0] = o;
-            data.visibility = false;
+            data.visibility = true;
             objectData.Add(data);
         }
     }
@@ -87,6 +87,7 @@ public class CategoryData : ScriptableObject
         return l;
     }
 
+    // Returns a random GameObject from the options specified at the metadata list
     public GameObject GetObjectVariant(string name) 
     {
         int i = 0;
@@ -141,7 +142,9 @@ public class ObjectData         // Metadata of the components that form your gam
     [Tooltip("Prefab del object que instanciamos")]
     public GameObject[] prefab;
     [Tooltip("Object Rotation")]
-    public Vector3 rotation;    
+    public Vector3 rotation;
+    [Tooltip("Object Scale")]
+    public Vector3 scale;
     [Tooltip("Object Visibility")]
     public bool visibility;
 }

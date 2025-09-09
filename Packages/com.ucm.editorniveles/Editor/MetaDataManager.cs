@@ -206,7 +206,7 @@ namespace EditorNiveles
             return categories[categoryName];
         }
 
-        public static Dictionary<string, List<GameObject>> GetCategories()
+        public static Dictionary<string, List<GameObject>> RetrieveCategories()
         {
             categories = new Dictionary<string, List<GameObject>>();
             foreach (string c in categoryLabels) categories.Add(c, RetrieveCategory(c));
