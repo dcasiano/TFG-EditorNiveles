@@ -15,7 +15,7 @@ Ismael Sagredo Olivenza
 
 El repositorio contiene el proyecto de Unity completo donde se desarrolló el editor de niveles. No obstante, si quieres utilizar el editor en tu proyecto, solo necesitas descargar el archivo comprimido com.ucm.editorniveles.zip
 
-Una vez descomprimido, debes moverlo a la carpeta Packages de tu proyecto de Unity. Tras esto, aparecerá una nueva seccción en la parte superior del editor de Unity llamada Tools. Allí, encontrarás el botón New Level, que creará una nueva escena con todo lo necesario para empezar a editar el nivel. En el menú Tools también encontrarás el botón para mostrar la paleta.
+Una vez descomprimido, debes moverlo a la carpeta Packages de tu proyecto de Unity. Tras esto, aparecerá una nueva seccción en la parte superior del editor de Unity llamada Level Editor. Allí, encontrarás el botón New Level, que creará una nueva escena con todo lo necesario para empezar a editar el nivel. En el menú Level Editor también encontrarás el botón para mostrar la paleta.
 
 Una vez en la nueva escena, encontrarás en la jerarquía el GameObject Scenary. Clickando sobre él, accederás al inspector con diferentes opciones de personalización.
 
